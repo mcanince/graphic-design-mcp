@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "graphic-design-mcp"
-version = "2.0.0"
+version = "2.0.1"
 description = "Grafik tasarım analizi için MCP aracı - PNG raporları otomatik upload ve paylaşılabilir linkler"
 authors = [
     {name = "mcanince", email = "mcanince@example.com"},

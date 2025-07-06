@@ -120,6 +120,21 @@ def create_analysis_report(analysis_type: str, scores: dict, analysis_text: str,
         draw.line([(80, y), (width-80, y)], fill=secondary_color, width=3)
         y += 40
         
+        # Helper function to draw rounded rectangle for older Pillow versions
+        def draw_rounded_rectangle(draw, coords, radius, fill, outline=None):
+            try:
+                # Try the newer method first
+                draw.rounded_rectangle(coords, radius=radius, fill=fill, outline=outline)
+            except AttributeError:
+                # Fallback for older versions
+                x1, y1, x2, y2 = coords
+                draw.rectangle([x1, y1 + radius, x2, y2 - radius], fill=fill, outline=outline)
+                draw.rectangle([x1 + radius, y1, x2 - radius, y2], fill=fill, outline=outline)
+                draw.pieslice([x1, y1, x1 + radius * 2, y1 + radius * 2], 180, 270, fill=fill, outline=outline)
+                draw.pieslice([x2 - radius * 2, y1, x2, y1 + radius * 2], 270, 360, fill=fill, outline=outline)
+                draw.pieslice([x1, y2 - radius * 2, x1 + radius * 2, y2], 90, 180, fill=fill, outline=outline)
+                draw.pieslice([x2 - radius * 2, y2 - radius * 2, x2, y2], 0, 90, fill=fill, outline=outline)
+        
         # Overall score calculation and display
         if scores:
             total_score = sum(scores.values()) / len(scores)
@@ -144,8 +159,8 @@ def create_analysis_report(analysis_type: str, scores: dict, analysis_text: str,
             
             # Overall score box
             score_box_height = 120
-            draw.roundrectangle([(80, y), (width-80, y+score_box_height)], 
-                              radius=20, fill=score_color, outline=score_color)
+            draw_rounded_rectangle(draw, (80, y, width-80, y+score_box_height), 
+                                 radius=20, fill=score_color, outline=score_color)
             
             # Overall score text
             overall_text = f"{score_emoji} {score_text}"
@@ -183,14 +198,14 @@ def create_analysis_report(analysis_type: str, scores: dict, analysis_text: str,
                 bar_y = y + 30
                 bar_width = width - 200
                 bar_height = 20
-                draw.roundrectangle([(100, bar_y), (bar_width, bar_y+bar_height)], 
-                                  radius=10, fill='#e5e7eb', outline='#e5e7eb')
+                draw_rounded_rectangle(draw, (100, bar_y, bar_width, bar_y+bar_height), 
+                                     radius=10, fill='#e5e7eb', outline='#e5e7eb')
                 
                 # Score bar fill
                 fill_width = int((score / 10) * (bar_width - 100))
                 if fill_width > 0:
-                    draw.roundrectangle([(100, bar_y), (100+fill_width, bar_y+bar_height)], 
-                                      radius=10, fill=score_color, outline=score_color)
+                    draw_rounded_rectangle(draw, (100, bar_y, 100+fill_width, bar_y+bar_height), 
+                                         radius=10, fill=score_color, outline=score_color)
                 
                 y += 70
         
