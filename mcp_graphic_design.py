@@ -17,6 +17,7 @@ from fastmcp import FastMCP
 from PIL import Image, ImageDraw, ImageFont
 import textwrap
 from datetime import datetime
+import re
 
 # Initialize FastMCP server
 mcp = FastMCP("Graphic Design MCP")
@@ -280,6 +281,214 @@ def create_png_report(analysis_type: str, scores: dict, analysis_text: str, imag
         
     except Exception as e:
         return None, f"Error creating report: {str(e)}", None
+
+def create_png_report_with_image(analysis_type: str, scores: dict, analysis_text: str, original_image_url: str) -> Tuple[str, str, str]:
+    """
+    Create a comprehensive PNG report that includes the original image and analysis results.
+    
+    Args:
+        analysis_type: Type of analysis (design or copywriting)
+        scores: Dictionary of scores and feedback
+        analysis_text: Full analysis text
+        original_image_url: URL of the original analyzed image
+        
+    Returns:
+        Tuple of (base64_image, filename, github_url)
+    """
+    try:
+        # Download the original image
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        response = requests.get(original_image_url, headers=headers, timeout=30)
+        response.raise_for_status()
+        
+        # Load original image
+        original_img = Image.open(io.BytesIO(response.content))
+        
+        # Create a large canvas for the combined report (1600x1200)
+        canvas_width, canvas_height = 1600, 1200
+        canvas = Image.new('RGB', (canvas_width, canvas_height), color='white')
+        draw = ImageDraw.Draw(canvas)
+        
+        # Load fonts
+        try:
+            title_font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 36)
+            header_font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 24)
+            text_font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 18)
+            small_font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 14)
+        except:
+            try:
+                title_font = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", 36)
+                header_font = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", 24)
+                text_font = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", 18)
+                small_font = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", 14)
+            except:
+                title_font = ImageFont.load_default()
+                header_font = ImageFont.load_default()
+                text_font = ImageFont.load_default()
+                small_font = ImageFont.load_default()
+        
+        # Colors
+        primary_color = '#1e40af'
+        secondary_color = '#64748b'
+        accent_color = '#10b981'
+        bg_color = '#f8fafc'
+        
+        # Background
+        draw.rectangle([(0, 0), (canvas_width, 80)], fill=bg_color)
+        
+        # Title
+        if analysis_type.lower() == "design":
+            title = "🎨 DESIGN ANALYSIS REPORT"
+        else:
+            title = "✍️ COPYWRITING ANALYSIS REPORT"
+            
+        title_bbox = draw.textbbox((0, 0), title, font=title_font)
+        title_width = title_bbox[2] - title_bbox[0]
+        title_x = (canvas_width - title_width) // 2
+        draw.text((title_x, 20), title, fill=primary_color, font=title_font)
+        
+        # Resize and place original image on the left side
+        img_area_width = 700
+        img_area_height = 900
+        img_x = 50
+        img_y = 120
+        
+        # Calculate scaling to fit image in the designated area
+        img_w, img_h = original_img.size
+        scale_w = img_area_width / img_w
+        scale_h = img_area_height / img_h
+        scale = min(scale_w, scale_h)
+        
+        new_w = int(img_w * scale)
+        new_h = int(img_h * scale)
+        
+        # Resize and paste original image
+        resized_img = original_img.resize((new_w, new_h), Image.Resampling.LANCZOS)
+        paste_x = img_x + (img_area_width - new_w) // 2
+        paste_y = img_y + (img_area_height - new_h) // 2
+        canvas.paste(resized_img, (paste_x, paste_y))
+        
+        # Draw border around image
+        draw.rectangle([(img_x, img_y), (img_x + img_area_width, img_y + img_area_height)], outline=secondary_color, width=2)
+        
+        # Analysis results on the right side
+        results_x = 800
+        y = 120
+        
+        # Helper function for rounded rectangles
+        def draw_rounded_rectangle(draw, coords, radius, fill, outline=None):
+            try:
+                draw.rounded_rectangle(coords, radius=radius, fill=fill, outline=outline)
+            except AttributeError:
+                x1, y1, x2, y2 = coords
+                draw.rectangle([x1, y1 + radius, x2, y2 - radius], fill=fill, outline=outline)
+                draw.rectangle([x1 + radius, y1, x2 - radius, y2], fill=fill, outline=outline)
+                draw.pieslice([x1, y1, x1 + radius * 2, y1 + radius * 2], 180, 270, fill=fill, outline=outline)
+                draw.pieslice([x2 - radius * 2, y1, x2, y1 + radius * 2], 270, 360, fill=fill, outline=outline)
+                draw.pieslice([x1, y2 - radius * 2, x1 + radius * 2, y2], 90, 180, fill=fill, outline=outline)
+                draw.pieslice([x2 - radius * 2, y2 - radius * 2, x2, y2], 0, 90, fill=fill, outline=outline)
+        
+        # Overall score
+        if scores:
+            total_score = sum(scores.values()) / len(scores)
+            
+            # Score color based on performance
+            if total_score >= 8:
+                score_color = '#10b981'
+                score_emoji = "🌟"
+                score_text = "EXCELLENT"
+            elif total_score >= 6:
+                score_color = '#3b82f6'
+                score_emoji = "👍"
+                score_text = "GOOD"
+            elif total_score >= 4:
+                score_color = '#f59e0b'
+                score_emoji = "⚠️"
+                score_text = "NEEDS IMPROVEMENT"
+            else:
+                score_color = '#ef4444'
+                score_emoji = "❌"
+                score_text = "POOR"
+            
+            # Overall score box
+            score_box_height = 100
+            draw_rounded_rectangle(draw, (results_x, y, canvas_width - 50, y + score_box_height), 
+                                 radius=15, fill=score_color, outline=score_color)
+            
+            # Overall score text
+            overall_text = f"{score_emoji} {score_text}"
+            score_number = f"{total_score:.1f}/10"
+            
+            draw.text((results_x + 20, y + 15), overall_text, fill='white', font=header_font)
+            draw.text((results_x + 20, y + 50), score_number, fill='white', font=title_font)
+            y += score_box_height + 40
+            
+            # Individual scores
+            draw.text((results_x, y), "📊 DETAILED SCORES", fill=primary_color, font=header_font)
+            y += 40
+            
+            bar_width = canvas_width - results_x - 100
+            for category, score in scores.items():
+                # Category name and score
+                category_text = f"• {category}: {score}/10"
+                draw.text((results_x, y), category_text, fill=secondary_color, font=text_font)
+                
+                # Score bar background
+                bar_y = y + 25
+                bar_height = 15
+                draw_rounded_rectangle(draw, (results_x, bar_y, results_x + bar_width, bar_y + bar_height), 
+                                     radius=8, fill='#e5e7eb', outline='#e5e7eb')
+                
+                # Score bar fill
+                fill_width = int((score / 10) * bar_width)
+                if fill_width > 0:
+                    draw_rounded_rectangle(draw, (results_x, bar_y, results_x + fill_width, bar_y + bar_height), 
+                                         radius=8, fill=score_color, outline=score_color)
+                
+                y += 50
+        
+        # Add URL and timestamp at bottom
+        y = canvas_height - 100
+        draw.text((50, y), "🔗 ANALYZED IMAGE:", fill=primary_color, font=header_font)
+        y += 30
+        
+        # Wrap URL if too long
+        url_text = original_image_url
+        if len(url_text) > 100:
+            url_text = url_text[:97] + "..."
+        draw.text((50, y), url_text, fill=secondary_color, font=small_font)
+        
+        # Timestamp
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        draw.text((50, canvas_height - 40), f"📅 Generated: {timestamp}", fill=secondary_color, font=small_font)
+        draw.text((50, canvas_height - 20), "✨ Powered by OpenAI GPT-4 Vision", fill=secondary_color, font=small_font)
+        
+        # Create filename
+        timestamp_str = str(int(datetime.now().timestamp()))
+        filename = f"reports/{analysis_type}_comprehensive_report_{timestamp_str}.png"
+        
+        # Create reports directory if it doesn't exist
+        os.makedirs("reports", exist_ok=True)
+        
+        # Save the image locally
+        canvas.save(filename, format='PNG', quality=95)
+        
+        # Convert to base64 for embedding
+        buffer = io.BytesIO()
+        canvas.save(buffer, format='PNG', quality=95)
+        buffer.seek(0)
+        image_base64 = base64.b64encode(buffer.getvalue()).decode()
+        
+        # Try to commit to GitHub
+        github_url = commit_to_github(filename, filename)
+        
+        return image_base64, filename, github_url
+        
+    except Exception as e:
+        return None, f"Error creating comprehensive report: {str(e)}", None
 
 @mcp.tool()
 def analyze_design(url: str) -> str:
@@ -584,78 +793,114 @@ If no text is visible, indicate that no copywriting was found to analyze."""
         return f"❌ **Error:** {str(e)}"
 
 @mcp.tool()
-def generate_report() -> str:
+def generate_report(original_image_url: str, analysis_result: str) -> str:
     """
-    Generate a visual PNG report from the last analysis performed.
+    Generate a visual PNG report from provided analysis results and original image.
     
     This tool creates a beautiful PNG infographic with charts, colors, and visual elements
-    based on the most recent design or copywriting analysis. The PNG is displayed in chat
-    and optionally uploaded to GitHub if available.
+    based on the provided analysis results and original image URL. The PNG includes the 
+    original analyzed image alongside the analysis results and is displayed in chat and 
+    optionally uploaded to GitHub if available.
+    
+    Args:
+        original_image_url: URL of the original image that was analyzed
+        analysis_result: JSON string containing the analysis results
     
     Returns:
         Status of PNG generation with embedded image or error message
     """
     try:
-        # Load the last analysis data
-        if not os.path.exists("last_analysis.json"):
-            return "❌ **No Recent Analysis Found!**\n\nPlease run `analyze_design` or `analyze_copywriting` first, then use this tool to generate a visual report."
+        import json
         
-        with open("last_analysis.json", "r") as f:
-            analysis_data = json.load(f)
+        # Parse the analysis result
+        try:
+            analysis_data = json.loads(analysis_result)
+        except json.JSONDecodeError:
+            # If it's not JSON, treat as plain text and extract scores
+            analysis_text = analysis_result
+            analysis_data = {
+                "analysis_type": "design",
+                "analysis_text": analysis_text,
+                "scores": extract_scores_from_text(analysis_text),
+                "original_image_url": original_image_url
+            }
         
-        analysis_type = analysis_data.get("type", "unknown")
-        scores = analysis_data.get("scores", {})
-        analysis_text = analysis_data.get("analysis", "")
-        image_url = analysis_data.get("url", "")
+        # Create comprehensive PNG report with original image
+        base64_image, filename, github_url = create_png_report_with_image(
+            analysis_data.get("analysis_type", "design"),
+            analysis_data.get("scores", {}),
+            analysis_data.get("analysis_text", analysis_result),
+            original_image_url
+        )
         
-        if not scores:
-            return "❌ **No Scores Found!**\n\nThe analysis data doesn't contain valid scores. Please run a new analysis first."
-        
-        # Generate PNG report
-        report_image, filename, github_url = create_png_report(analysis_type, scores, analysis_text, image_url)
-        
-        if not report_image:
-            return f"❌ **PNG Generation Failed!**\n\nError: {filename}"
-        
-        # Format response with PNG embedded
-        formatted_response = f"""
+        # Prepare response with embedded PNG
+        response = f"""
 🎨 **PNG REPORT GENERATED SUCCESSFULLY!**
 
 📸 **VISUAL REPORT:**
-![{analysis_type.title()} Analysis Report](data:image/png;base64,{report_image})
+![Analysis Report](data:image/png;base64,{base64_image})
 
 💾 **Local File:** {filename}
-"""
-        
-        if github_url:
-            formatted_response += f"""
-🔗 **GitHub Link:** {github_url}
 
-📱 **Share this link** to show the detailed analysis report!"""
-        else:
-            formatted_response += """
-⚠️ **GitHub Upload:** Not available (not in a git repository or no push access)"""
-        
-        # Calculate overall score for summary
-        if scores:
-            overall_score = sum(scores.values()) / len(scores)
-            formatted_response += f"""
+🔗 **Shareable Link:** {github_url if github_url else "Not available (not in a git repository or no push access)"}
 
 📊 **Report Summary:**
-- **Analysis Type:** {analysis_type.title()}
-- **Overall Score:** {overall_score:.1f}/10
-- **Categories:** {len(scores)} evaluated
-- **Generated:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}"""
-        
-        formatted_response += """
+- **Analysis Type:** {analysis_data.get("analysis_type", "Design").title()}
+- **Original Image:** {original_image_url}
+- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 ---
 *✨ Visual report powered by Pillow & OpenAI GPT-4 Vision*"""
-        
-        return formatted_response
+
+        return response
         
     except Exception as e:
-        return f"❌ **Error generating report:** {str(e)}"
+        return f"❌ **Error generating PNG report:** {str(e)}"
+
+def extract_scores_from_text(text: str) -> dict:
+    """
+    Extract scores from analysis text using regex patterns.
+    
+    Args:
+        text: Analysis text containing scores
+        
+    Returns:
+        Dictionary of extracted scores
+    """
+    scores = {}
+    
+    # Common score patterns
+    patterns = [
+        r'Visual Harmony[:\s]*(\d+)/10',
+        r'Clarity[:\s]*(\d+)/10', 
+        r'User Friendliness[:\s]*(\d+)/10',
+        r'Interactivity[:\s]*(\d+)/10',
+        r'Creativity[:\s]*(\d+)/10',
+        r'(\w+)[:\s]*(\d+)/10'  # Generic pattern
+    ]
+    
+    for pattern in patterns:
+        matches = re.finditer(pattern, text, re.IGNORECASE)
+        for match in matches:
+            if len(match.groups()) == 2:  # Generic pattern
+                category = match.group(1).strip()
+                score = int(match.group(2))
+                if category.lower() not in [k.lower() for k in scores.keys()]:
+                    scores[category] = score
+            else:  # Specific patterns
+                score = int(match.group(1))
+                if 'harmony' in pattern.lower():
+                    scores['Visual Harmony'] = score
+                elif 'clarity' in pattern.lower():
+                    scores['Clarity'] = score
+                elif 'friendliness' in pattern.lower():
+                    scores['User Friendliness'] = score
+                elif 'interactivity' in pattern.lower():
+                    scores['Interactivity'] = score
+                elif 'creativity' in pattern.lower():
+                    scores['Creativity'] = score
+    
+    return scores
 
 def main():
     """Main entry point for the MCP server"""
