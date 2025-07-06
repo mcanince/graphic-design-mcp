@@ -7,8 +7,19 @@ MCP (Model Context Protocol) tool for graphic design analysis. Analyzes designs 
 ### 🎯 Analysis Types
 - **🎨 Design Analysis** - Visual Harmony, Clarity, User Friendliness, Interactivity, Creativity
 - **✍️ Copywriting Analysis** - Clarity, Persuasiveness, Emotional Appeal, Call-to-Action, Brand Voice
-  
+- **🌐 Website Design Analysis** - Layout, Navigation, Visual Hierarchy, Branding, Responsiveness
+- **📐 Layout & Alignment Analysis** - Spacing, Alignment, Grid System, Balance, Symmetry Issues
+
+### 📊 Visual Reports
+- **📸 Direct Chat Display** - PNG reports embedded in chat via base64
+- **🔗 GitHub Auto-Commit** - Reports automatically committed to GitHub
+- **📱 Shareable Links** - Easy sharing with GitHub raw URLs
+- **💾 Local Storage** - Reports saved to `reports/` folder
+
 ### 🚀 Ease of Use
+- **❌ No API Key Required** - Only OpenAI API key needed
+- **⚡ Automatic Upload** - No manual upload process
+- **🎨 Professional Reports** - Colorful charts and scores
 - **📊 Detailed Analysis** - Specific feedback for each category
 
 ## 📋 Installation
@@ -43,6 +54,16 @@ analyze_design url:https://example.com/design.jpg
 ### 2. Copywriting Analysis
 ```
 analyze_copywriting url:https://example.com/ad.jpg
+```
+
+### 3. Website Design Analysis
+```
+analyze_website_design url:https://example.com
+```
+
+### 4. Layout & Alignment Analysis
+```
+analyze_layout_alignment url:https://example.com/layout.jpg
 ```
 
 ## 📊 Sample Output
@@ -117,22 +138,27 @@ MIT License - See [LICENSE](LICENSE) file for details.
 
 ### 📊 Website Design
 ```bash
-@analyze_design url:https://example.com/homepage-mockup.jpg
+analyze_website_design url:https://example.com
 ```
 
 ### 🎪 Social Media Post
 ```bash
-@analyze_design url:https://example.com/instagram-post.jpg
+analyze_design url:https://example.com/instagram-post.jpg
 ```
 
 ### 🏢 Presentation Slide
 ```bash
-@analyze_design url:https://example.com/presentation-slide.jpg
+analyze_design url:https://example.com/presentation-slide.jpg
 ```
 
 ### 📱 Mobile App UI
 ```bash
-@analyze_design url:https://example.com/mobile-app-screen.jpg
+analyze_design url:https://example.com/mobile-app-screen.jpg
+```
+
+### 📐 Layout Issues Check
+```bash
+analyze_layout_alignment url:https://example.com/layout-design.jpg
 ```
 
 ## 🚨 Troubleshooting
@@ -186,11 +212,20 @@ python mcp_graphic_design.py
 4. Push to the branch (`git push origin feature/NewFeature`)
 5. Open a Pull Request
 
+## 📜 License
+
+This project is distributed under the MIT License.
+
+## 🙏 Acknowledgments
+
+- OpenAI GPT-4o Vision API
+- FastMCP framework
+- Cursor IDE MCP support
 
 ## 📧 Contact
 
 - GitHub: [@mcanince](https://github.com/mcanince)
-- Email: mcanince@hotmail.com
+- Email: mcanince@example.com
 
 ---
 
