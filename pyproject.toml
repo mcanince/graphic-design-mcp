@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "grafik-tasarim-mcp"
+version = "1.0.0"
+description = "MCP Server for Graphic Design Analysis with OpenAI GPT-4o"
+authors = [{name = "mcanince"}]
+dependencies = [
+    "openai>=1.0.0",
+    "requests>=2.25.0"
+]
+requires-python = ">=3.8"
+
+[project.scripts]
+grafik-tasarim-mcp = "mcp-graphic-design:main" 
