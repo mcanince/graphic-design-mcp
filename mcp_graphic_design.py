@@ -1,6 +1,18 @@
 #!/usr/bin/env python3
-import os, sys, json, base64, requests
+import os, sys, json, base64, requests, logging
 from openai import OpenAI
+from datetime import datetime
+
+# Logging setup
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('/tmp/mcp_graphic_design.log'),
+        logging.StreamHandler(sys.stderr)
+    ]
+)
+logger = logging.getLogger(__name__)
 
 def get_openai_api_key():
     """Environment variable'dan OpenAI API anahtarını alır"""
@@ -11,6 +23,7 @@ def get_openai_api_key():
 
 def initialize_server(request_id):
     """MCP sunucusunu başlatır"""
+    logger.info(f"Initialize server called with request_id: {request_id}")
     response = {
         "jsonrpc": "2.0",
         "id": request_id,
@@ -28,10 +41,12 @@ def initialize_server(request_id):
             }
         }
     }
+    logger.info(f"Initialize response: {json.dumps(response)}")
     return response
 
 def list_tools(request_id):
     """MCP tools listesini döner"""
+    logger.info(f"List tools called with request_id: {request_id}")
     tools = [
         {
             "name": "analyze_design",
@@ -56,7 +71,7 @@ def list_tools(request_id):
             "tools": tools
         }
     }
-    
+    logger.info(f"List tools response: {json.dumps(response)}")
     return response
 
 def fetch_image_base64(url):
@@ -159,16 +174,22 @@ def call_tool(request_id, tool_name, arguments):
 
 def main():
     """Ana MCP handler fonksiyonu"""
+    logger.info("MCP Server starting...")
     try:
         # stdin'den JSON oku
         input_data = sys.stdin.read()
+        logger.info(f"Received input: {input_data}")
+        
         if not input_data.strip():
+            logger.warning("Empty input received")
             return
             
         payload = json.loads(input_data)
         method = payload.get("method")
         request_id = payload.get("id")
         params = payload.get("params", {})
+        
+        logger.info(f"Method: {method}, Request ID: {request_id}, Params: {params}")
         
         if method == "initialize":
             response = initialize_server(request_id)
@@ -179,9 +200,11 @@ def main():
         elif method == "tools/call":
             tool_name = params.get("name")
             arguments = params.get("arguments", {})
+            logger.info(f"Tool call: {tool_name}, Arguments: {arguments}")
             response = call_tool(request_id, tool_name, arguments)
             print(json.dumps(response))
         else:
+            logger.warning(f"Unknown method: {method}")
             error_response = {
                 "jsonrpc": "2.0",
                 "id": request_id,
@@ -193,6 +216,7 @@ def main():
             print(json.dumps(error_response))
             
     except json.JSONDecodeError as e:
+        logger.error(f"JSON decode error: {e}")
         error_response = {
             "jsonrpc": "2.0",
             "id": None,
@@ -203,6 +227,7 @@ def main():
         }
         print(json.dumps(error_response))
     except Exception as e:
+        logger.error(f"General error: {e}")
         error_response = {
             "jsonrpc": "2.0",
             "id": request_id if 'request_id' in locals() else None,
@@ -212,6 +237,8 @@ def main():
             }
         }
         print(json.dumps(error_response))
+    
+    logger.info("MCP Server finished processing request")
 
 if __name__ == "__main__":
     main()
