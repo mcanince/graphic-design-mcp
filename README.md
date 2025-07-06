@@ -9,15 +9,11 @@ MCP (Model Context Protocol) tool for graphic design analysis. Analyzes designs 
 - **✍️ Copywriting Analysis** - Clarity, Persuasiveness, Emotional Appeal, Call-to-Action, Brand Voice
 
 ### 📊 Visual Reports
-- **📸 Direct Chat Display** - PNG reports embedded in chat via base64
 - **🔗 GitHub Auto-Commit** - Reports automatically committed to GitHub
 - **📱 Shareable Links** - Easy sharing with GitHub raw URLs
 - **💾 Local Storage** - Reports saved to `reports/` folder
 
 ### 🚀 Ease of Use
-- **❌ No API Key Required** - Only OpenAI API key needed
-- **⚡ Automatic Upload** - No manual upload process
-- **🎨 Professional Reports** - Colorful charts and scores
 - **📊 Detailed Analysis** - Specific feedback for each category
 
 ## 📋 Installation
@@ -194,7 +190,6 @@ python mcp_graphic_design.py
 3. Commit your changes (`git commit -m 'Add NewFeature'`)
 4. Push to the branch (`git push origin feature/NewFeature`)
 5. Open a Pull Request
-
 
 
 ## 📧 Contact
