@@ -1,2 +1,6 @@
-openai>=1.0.0
-requests>=2.25.0 
+fastmcp>=0.1.0
+requests>=2.25.0
+openai>=1.0.0 
+beautifulsoup4
+lxml
+Pillow 
