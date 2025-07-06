@@ -9,6 +9,7 @@ import os
 import base64
 import requests
 import io
+import subprocess
 from typing import Any, Dict, List, Tuple, Optional
 from openai import OpenAI
 from fastmcp import FastMCP
@@ -19,40 +20,68 @@ from datetime import datetime
 # Initialize FastMCP server
 mcp = FastMCP("Graphic Design MCP")
 
-def upload_image_to_imgbb(image_base64: str, filename: str) -> Optional[str]:
+def commit_to_github(filename: str, file_path: str) -> Optional[str]:
     """
-    Upload image to imgbb.com and return the shareable URL.
+    Commit the PNG file to GitHub and return the raw file URL.
     
     Args:
-        image_base64: Base64 encoded image
         filename: Name of the file
+        file_path: Local path to the file
         
     Returns:
-        URL of the uploaded image or None if failed
+        GitHub raw URL of the file or None if failed
     """
     try:
-        # imgbb.com API endpoint
-        api_key = "46b7d1a2edc2e3be6de96d86e8eedcea"  # Free API key for imgbb
-        url = "https://api.imgbb.com/1/upload"
-        
-        payload = {
-            "key": api_key,
-            "image": image_base64,
-            "name": filename
-        }
-        
-        response = requests.post(url, data=payload, timeout=30)
-        response.raise_for_status()
-        
-        result = response.json()
-        if result.get("success"):
-            return result["data"]["url"]
-        else:
+        # Check if we're in a git repository
+        result = subprocess.run(['git', 'rev-parse', '--is-inside-work-tree'], 
+                              capture_output=True, text=True)
+        if result.returncode != 0:
             return None
             
+        # Get the current branch and remote info
+        branch_result = subprocess.run(['git', 'branch', '--show-current'], 
+                                     capture_output=True, text=True)
+        if branch_result.returncode != 0:
+            return None
+        branch = branch_result.stdout.strip()
+        
+        # Get remote URL
+        remote_result = subprocess.run(['git', 'remote', 'get-url', 'origin'], 
+                                     capture_output=True, text=True)
+        if remote_result.returncode != 0:
+            return None
+        remote_url = remote_result.stdout.strip()
+        
+        # Extract GitHub username and repo name
+        if 'github.com' in remote_url:
+            if remote_url.startswith('https://github.com/'):
+                repo_info = remote_url.replace('https://github.com/', '').replace('.git', '')
+            elif remote_url.startswith('git@github.com:'):
+                repo_info = remote_url.replace('git@github.com:', '').replace('.git', '')
+            else:
+                return None
+                
+            username, repo_name = repo_info.split('/')
+            
+            # Add file to git
+            subprocess.run(['git', 'add', file_path], check=True)
+            
+            # Commit file
+            commit_message = f"Add analysis report: {filename}"
+            subprocess.run(['git', 'commit', '-m', commit_message], check=True)
+            
+            # Push to GitHub
+            subprocess.run(['git', 'push', 'origin', branch], check=True)
+            
+            # Return raw GitHub URL
+            github_url = f"https://raw.githubusercontent.com/{username}/{repo_name}/{branch}/{filename}"
+            return github_url
+            
     except Exception as e:
-        print(f"Error uploading image: {e}")
+        print(f"Error committing to GitHub: {e}")
         return None
+    
+    return None
 
 def create_analysis_report(analysis_type: str, scores: dict, analysis_text: str, image_url: str = None) -> Tuple[str, str, str]:
     """
@@ -65,7 +94,7 @@ def create_analysis_report(analysis_type: str, scores: dict, analysis_text: str,
         image_url: Original image URL (optional)
         
     Returns:
-        Tuple of (base64_image, filename, upload_url)
+        Tuple of (base64_image, filename, github_url)
     """
     try:
         # Create a large canvas for the report
@@ -227,22 +256,26 @@ def create_analysis_report(analysis_type: str, scores: dict, analysis_text: str,
         draw.text((80, height-80), f"📅 Generated: {timestamp}", fill=secondary_color, font=small_font)
         draw.text((80, height-50), "✨ Powered by OpenAI GPT-4 Vision", fill=secondary_color, font=small_font)
         
-        # Save to base64
+        # Create filename
+        timestamp_str = str(int(datetime.now().timestamp()))
+        filename = f"reports/{analysis_type}_analysis_report_{timestamp_str}.png"
+        
+        # Create reports directory if it doesn't exist
+        os.makedirs("reports", exist_ok=True)
+        
+        # Save the image locally
+        img.save(filename, format='PNG', quality=95)
+        
+        # Convert to base64 for embedding
         buffer = io.BytesIO()
         img.save(buffer, format='PNG', quality=95)
         buffer.seek(0)
-        
-        # Create filename
-        timestamp_str = str(int(datetime.now().timestamp()))
-        filename = f"{analysis_type}_analysis_report_{timestamp_str}.png"
-        
-        # Convert to base64
         image_base64 = base64.b64encode(buffer.getvalue()).decode()
         
-        # Upload to imgbb
-        upload_url = upload_image_to_imgbb(image_base64, filename)
+        # Try to commit to GitHub
+        github_url = commit_to_github(filename, filename)
         
-        return image_base64, filename, upload_url
+        return image_base64, filename, github_url
         
     except Exception as e:
         return None, f"Error creating report: {str(e)}", None
@@ -344,7 +377,7 @@ Then provide detailed feedback for each category and overall recommendations."""
                         continue
         
         # Generate PNG report and upload
-        report_image, filename, upload_url = create_analysis_report("Design", scores, analysis, url)
+        report_image, filename, github_url = create_analysis_report("Design", scores, analysis, url)
         
         # Format the response with emojis and better structure
         formatted_response = f"""
@@ -355,16 +388,26 @@ Then provide detailed feedback for each category and overall recommendations."""
 
 🖼️ **VISUAL REPORT:**"""
         
-        if upload_url:
+        if report_image:
             formatted_response += f"""
-✅ **PNG Report Successfully Generated and Uploaded!**
-🔗 **View Full Report:** {upload_url}
+✅ **PNG Report Successfully Generated!**
 
-📱 **Share this link** to show the detailed visual analysis report with scores and charts!"""
+📸 **VISUAL REPORT IMAGE:**
+![Analysis Report](data:image/png;base64,{report_image})
+
+"""
+            
+            if github_url:
+                formatted_response += f"""🔗 **Shareable Link:** {github_url}
+
+📱 **Share this link** to show the detailed visual analysis report!"""
+            else:
+                formatted_response += f"""💾 **Local File:** {filename}
+
+⚠️ Auto-upload to GitHub not available (not in a git repository or no push access)"""
         else:
             formatted_response += f"""
-⚠️ PNG report generated locally as: `{filename}`
-❌ Could not upload to image hosting service"""
+❌ Could not generate PNG report: {filename}"""
         
         formatted_response += f"""
 
@@ -501,7 +544,7 @@ If no text is visible, indicate that no copywriting was found to analyze."""
                         continue
         
         # Generate PNG report and upload
-        report_image, filename, upload_url = create_analysis_report("Copywriting", scores, analysis, url)
+        report_image, filename, github_url = create_analysis_report("Copywriting", scores, analysis, url)
         
         # Format the response with emojis and better structure
         formatted_response = f"""
@@ -512,16 +555,26 @@ If no text is visible, indicate that no copywriting was found to analyze."""
 
 🖼️ **VISUAL REPORT:**"""
         
-        if upload_url:
+        if report_image:
             formatted_response += f"""
-✅ **PNG Report Successfully Generated and Uploaded!**
-🔗 **View Full Report:** {upload_url}
+✅ **PNG Report Successfully Generated!**
 
-📱 **Share this link** to show the detailed copywriting analysis report with scores and recommendations!"""
+📸 **VISUAL REPORT IMAGE:**
+![Copywriting Analysis Report](data:image/png;base64,{report_image})
+
+"""
+            
+            if github_url:
+                formatted_response += f"""🔗 **Shareable Link:** {github_url}
+
+📱 **Share this link** to show the detailed copywriting analysis report!"""
+            else:
+                formatted_response += f"""💾 **Local File:** {filename}
+
+⚠️ Auto-upload to GitHub not available (not in a git repository or no push access)"""
         else:
             formatted_response += f"""
-⚠️ PNG report generated locally as: `{filename}`
-❌ Could not upload to image hosting service"""
+❌ Could not generate PNG report: {filename}"""
         
         formatted_response += f"""
 
@@ -557,8 +610,9 @@ def main():
         print("📋 Available tools:")
         print("  • analyze_design - Analyze visual design elements")
         print("  • analyze_copywriting - Analyze text/copywriting content")
-        print("🖼️ PNG reports will be generated and uploaded automatically!")
-        print("🔗 Shareable links will be provided for each analysis!")
+        print("🖼️ PNG reports will be generated automatically!")
+        print("📸 Reports will be embedded directly in chat!")
+        print("🔗 Auto-upload to GitHub if available!")
         mcp.run()
     except KeyboardInterrupt:
         print("\n👋 Shutting down Graphic Design MCP Server...")

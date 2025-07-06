@@ -1,22 +1,29 @@
-# 🎨 Graphic Design MCP Tool
+# Graphic Design MCP v3.0.0 🎨
 
-**OpenAI GPT-4o Vision ile profesyonel grafik tasarım analizi**
+Grafik tasarım analizi için MCP (Model Context Protocol) aracı. OpenAI GPT-4 Vision kullanarak tasarımları detaylı analiz eder ve görsel raporlar oluşturur.
 
-Tek tool ile tasarım görsellerinizi 5 kategoride analiz eder ve detaylı geri bildirim sunar.
+## ✨ Özellikler
 
-## 🚀 Özellikler
+### 🎯 Analiz Türleri
+- **🎨 Tasarım Analizi** - Visual Harmony, Clarity, User Friendliness, Interactivity, Creativity
+- **✍️ Copywriting Analizi** - Clarity, Persuasiveness, Emotional Appeal, Call-to-Action, Brand Voice
 
-### 🎨 **Design Analyzer**
-- **5 kategori puanlaması** (Visual Harmony, Clarity, User Friendliness, Interactivity, Creativity)
-- Her kategori için 10 üzerinden puanlama
-- Detaylı açıklamalar ve öneriler
-- OpenAI GPT-4o Vision powered analiz
+### 📊 Görsel Raporlar
+- **📸 Chat'te Direkt Gösterim** - PNG raporları base64 ile chat'e embed edilir
+- **🔗 GitHub Auto-Commit** - Raporlar otomatik olarak GitHub'a commit edilir
+- **📱 Paylaşılabilir Linkler** - GitHub raw URL'leri ile kolay paylaşım
+- **💾 Yerel Kayıt** - Raporlar `reports/` klasörüne kaydedilir
 
-## 🛠️ Kurulum
+### 🚀 Kullanım Kolaylığı
+- **❌ API Key Gerektirmez** - Sadece OpenAI API key'i gerekli
+- **⚡ Otomatik Upload** - Manuel upload işlemi yok
+- **🎨 Profesyonel Raporlar** - Renkli çizelgeler ve skorlar
+- **📊 Detaylı Analiz** - Her kategori için özel geri bildirim
 
-### MCP JSON Konfigürasyonu
+## 📋 Kurulum
 
-`~/.cursor/mcp.json` dosyanıza şunu ekleyin:
+### Cursor MCP Ayarları
+`~/.cursor/mcp.json` dosyasına ekleyin:
 
 ```json
 {
@@ -35,20 +42,85 @@ Tek tool ile tasarım görsellerinizi 5 kategoride analiz eder ve detaylı geri 
 }
 ```
 
-## 📖 Kullanım
+## 🛠️ Kullanım
 
-### 🎨 Tasarım Analizi
-```bash
-@analyze_design url:https://example.com/design.jpg
+### 1. Tasarım Analizi
+```
+analyze_design url:https://example.com/design.jpg
 ```
 
-**Örnek Çıktı:**
+### 2. Copywriting Analizi
+```
+analyze_copywriting url:https://example.com/ad.jpg
+```
+
+## 📊 Örnek Çıktı
+
+🎨 **GRAPHIC DESIGN ANALYSIS REPORT**
+
+📋 **ANALYSIS RESULTS:**
 - Visual Harmony: 8/10
 - Clarity: 9/10  
-- User Friendliness: 7/10
-- Interactivity: 6/10
-- Creativity: 8/10
-- **Overall Score: 7.6/10**
+- User Friendliness: 8/10
+- Interactivity: 7/10
+- Creativity: 7/10
+
+📸 **VISUAL REPORT IMAGE:**
+![Analysis Report](data:image/png;base64,...)
+
+🔗 **Shareable Link:** https://raw.githubusercontent.com/username/repo/main/reports/...
+
+📊 **QUICK SUMMARY:** 👍 **GOOD** - Overall Score: 7.8/10
+
+## 🔧 Teknik Detaylar
+
+### Bağımlılıklar
+- `fastmcp>=0.1.0`
+- `requests>=2.31.0`
+- `openai>=1.0.0`
+- `Pillow>=9.0.0`
+
+### Raporlar
+- PNG formatında 1200x1600 piksel
+- Base64 olarak chat'e embed
+- GitHub'a otomatik commit
+- Yerel `reports/` klasörüne kayıt
+
+### GitHub Entegrasyonu
+- Otomatik git add, commit, push
+- Raw URL'ler ile paylaşım
+- `reports/` klasörü organizasyonu
+
+## �� Versiyon Geçmişi
+
+- **v3.0.0** - Base64 embedding + GitHub auto-commit
+- **v2.0.1** - PNG generation bug fixes
+- **v2.0.0** - Visual PNG reports added
+- **v1.2.0** - Copywriting analysis tool
+- **v1.1.0** - Design analysis tool
+- **v1.0.0** - Initial release
+
+## 🤝 Katkıda Bulunma
+
+1. Fork yapın
+2. Feature branch oluşturun (`git checkout -b feature/AmazingFeature`)
+3. Commit yapın (`git commit -m 'Add some AmazingFeature'`)
+4. Push yapın (`git push origin feature/AmazingFeature`)
+5. Pull Request oluşturun
+
+## 📄 Lisans
+
+MIT License - Detaylar için [LICENSE](LICENSE) dosyasına bakın.
+
+## 🔗 Links
+
+- [GitHub Repository](https://github.com/mcanince/graphic-design-mcp)
+- [MCP Documentation](https://modelcontextprotocol.io/)
+- [OpenAI API](https://openai.com/api/)
+
+---
+
+✨ **Powered by OpenAI GPT-4 Vision & Model Context Protocol**
 
 ## 🎯 Kullanım Senaryoları
 
