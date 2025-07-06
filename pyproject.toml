@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "graphic-design-mcp"
-version = "1.1.0"
-description = "Grafik tasarım analizi için MCP aracı"
+version = "1.2.0"
+description = "Grafik tasarım analizi için MCP aracı - PNG raporlarıyla"
 authors = [
     {name = "mcanince", email = "mcanince@example.com"},
 ]
@@ -13,11 +13,12 @@ dependencies = [
     "fastmcp>=0.1.0",
     "requests>=2.31.0",
     "openai>=1.0.0",
+    "Pillow>=9.0.0",
 ]
 requires-python = ">=3.8"
 
 [project.scripts]
-graphic-design-mcp = "mcp_graphic_design:main"
+graphic-design-mcp = "mcp_graphic_design:main" 
 
 [tool.hatch.build.targets.wheel]
 packages = ["mcp_graphic_design.py"] 
