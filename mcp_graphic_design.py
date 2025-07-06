@@ -43,7 +43,7 @@ def analyze_design(url: str) -> str:
             model="gpt-4o",
             messages=[
                 {
-                    "role": "user",
+                    "role": "user", 
                     "content": [
                         {
                             "type": "text", 
