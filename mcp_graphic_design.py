@@ -175,13 +175,34 @@ def call_tool(request_id, tool_name, arguments):
 def main():
     """Ana MCP handler fonksiyonu"""
     logger.info("MCP Server starting...")
+    logger.info("Environment variables available:")
+    logger.info(f"OPENAI_API_KEY: {'SET' if os.getenv('OPENAI_API_KEY') else 'NOT SET'}")
+    
     try:
-        # stdin'den JSON oku
-        input_data = sys.stdin.read()
-        logger.info(f"Received input: {input_data}")
+        # stdin'den tek satır JSON oku
+        logger.info("Reading single line from stdin...")
+        input_data = sys.stdin.readline()
+        logger.info(f"Received input: {repr(input_data)}")
         
         if not input_data.strip():
             logger.warning("Empty input received")
+            # Cursor'a bir şey döndür
+            response = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "result": {
+                    "protocolVersion": "2024-11-05",
+                    "capabilities": {
+                        "tools": {}
+                    },
+                    "serverInfo": {
+                        "name": "Grafik Tasarım MCP",
+                        "version": "1.0.0"
+                    }
+                }
+            }
+            print(json.dumps(response))
+            sys.stdout.flush()
             return
             
         payload = json.loads(input_data)
@@ -194,15 +215,18 @@ def main():
         if method == "initialize":
             response = initialize_server(request_id)
             print(json.dumps(response))
+            sys.stdout.flush()
         elif method == "tools/list":
             response = list_tools(request_id)
             print(json.dumps(response))
+            sys.stdout.flush()
         elif method == "tools/call":
             tool_name = params.get("name")
             arguments = params.get("arguments", {})
             logger.info(f"Tool call: {tool_name}, Arguments: {arguments}")
             response = call_tool(request_id, tool_name, arguments)
             print(json.dumps(response))
+            sys.stdout.flush()
         else:
             logger.warning(f"Unknown method: {method}")
             error_response = {
@@ -214,6 +238,7 @@ def main():
                 }
             }
             print(json.dumps(error_response))
+            sys.stdout.flush()
             
     except json.JSONDecodeError as e:
         logger.error(f"JSON decode error: {e}")
@@ -226,6 +251,7 @@ def main():
             }
         }
         print(json.dumps(error_response))
+        sys.stdout.flush()
     except Exception as e:
         logger.error(f"General error: {e}")
         error_response = {
@@ -237,6 +263,7 @@ def main():
             }
         }
         print(json.dumps(error_response))
+        sys.stdout.flush()
     
     logger.info("MCP Server finished processing request")
 
