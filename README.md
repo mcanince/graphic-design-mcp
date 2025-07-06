@@ -1,29 +1,29 @@
 # Graphic Design MCP v3.0.0 🎨
 
-Grafik tasarım analizi için MCP (Model Context Protocol) aracı. OpenAI GPT-4 Vision kullanarak tasarımları detaylı analiz eder ve görsel raporlar oluşturur.
+MCP (Model Context Protocol) tool for graphic design analysis. Analyzes designs in detail using OpenAI GPT-4 Vision and creates visual reports.
 
-## ✨ Özellikler
+## ✨ Features
 
-### 🎯 Analiz Türleri
-- **🎨 Tasarım Analizi** - Visual Harmony, Clarity, User Friendliness, Interactivity, Creativity
-- **✍️ Copywriting Analizi** - Clarity, Persuasiveness, Emotional Appeal, Call-to-Action, Brand Voice
+### 🎯 Analysis Types
+- **🎨 Design Analysis** - Visual Harmony, Clarity, User Friendliness, Interactivity, Creativity
+- **✍️ Copywriting Analysis** - Clarity, Persuasiveness, Emotional Appeal, Call-to-Action, Brand Voice
 
-### 📊 Görsel Raporlar
-- **📸 Chat'te Direkt Gösterim** - PNG raporları base64 ile chat'e embed edilir
-- **🔗 GitHub Auto-Commit** - Raporlar otomatik olarak GitHub'a commit edilir
-- **📱 Paylaşılabilir Linkler** - GitHub raw URL'leri ile kolay paylaşım
-- **💾 Yerel Kayıt** - Raporlar `reports/` klasörüne kaydedilir
+### 📊 Visual Reports
+- **📸 Direct Chat Display** - PNG reports embedded in chat via base64
+- **🔗 GitHub Auto-Commit** - Reports automatically committed to GitHub
+- **📱 Shareable Links** - Easy sharing with GitHub raw URLs
+- **💾 Local Storage** - Reports saved to `reports/` folder
 
-### 🚀 Kullanım Kolaylığı
-- **❌ API Key Gerektirmez** - Sadece OpenAI API key'i gerekli
-- **⚡ Otomatik Upload** - Manuel upload işlemi yok
-- **🎨 Profesyonel Raporlar** - Renkli çizelgeler ve skorlar
-- **📊 Detaylı Analiz** - Her kategori için özel geri bildirim
+### 🚀 Ease of Use
+- **❌ No API Key Required** - Only OpenAI API key needed
+- **⚡ Automatic Upload** - No manual upload process
+- **🎨 Professional Reports** - Colorful charts and scores
+- **📊 Detailed Analysis** - Specific feedback for each category
 
-## 📋 Kurulum
+## 📋 Installation
 
-### Cursor MCP Ayarları
-`~/.cursor/mcp.json` dosyasına ekleyin:
+### Cursor MCP Settings
+Add to `~/.cursor/mcp.json` file:
 
 ```json
 {
@@ -42,19 +42,19 @@ Grafik tasarım analizi için MCP (Model Context Protocol) aracı. OpenAI GPT-4 
 }
 ```
 
-## 🛠️ Kullanım
+## 🛠️ Usage
 
-### 1. Tasarım Analizi
+### 1. Design Analysis
 ```
 analyze_design url:https://example.com/design.jpg
 ```
 
-### 2. Copywriting Analizi
+### 2. Copywriting Analysis
 ```
 analyze_copywriting url:https://example.com/ad.jpg
 ```
 
-## 📊 Örnek Çıktı
+## 📊 Sample Output
 
 🎨 **GRAPHIC DESIGN ANALYSIS REPORT**
 
@@ -72,26 +72,26 @@ analyze_copywriting url:https://example.com/ad.jpg
 
 📊 **QUICK SUMMARY:** 👍 **GOOD** - Overall Score: 7.8/10
 
-## 🔧 Teknik Detaylar
+## 🔧 Technical Details
 
-### Bağımlılıklar
+### Dependencies
 - `fastmcp>=0.1.0`
 - `requests>=2.31.0`
 - `openai>=1.0.0`
 - `Pillow>=9.0.0`
 
-### Raporlar
-- PNG formatında 1200x1600 piksel
-- Base64 olarak chat'e embed
-- GitHub'a otomatik commit
-- Yerel `reports/` klasörüne kayıt
+### Reports
+- PNG format 1200x1600 pixels
+- Base64 embedded in chat
+- Automatic GitHub commit
+- Local save to `reports/` folder
 
-### GitHub Entegrasyonu
-- Otomatik git add, commit, push
-- Raw URL'ler ile paylaşım
-- `reports/` klasörü organizasyonu
+### GitHub Integration
+- Automatic git add, commit, push
+- Sharing with raw URLs
+- `reports/` folder organization
 
-## �� Versiyon Geçmişi
+## 📋 Version History
 
 - **v3.0.0** - Base64 embedding + GitHub auto-commit
 - **v2.0.1** - PNG generation bug fixes
@@ -100,17 +100,17 @@ analyze_copywriting url:https://example.com/ad.jpg
 - **v1.1.0** - Design analysis tool
 - **v1.0.0** - Initial release
 
-## 🤝 Katkıda Bulunma
+## 🤝 Contributing
 
-1. Fork yapın
-2. Feature branch oluşturun (`git checkout -b feature/AmazingFeature`)
-3. Commit yapın (`git commit -m 'Add some AmazingFeature'`)
-4. Push yapın (`git push origin feature/AmazingFeature`)
-5. Pull Request oluşturun
+1. Fork the project
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## 📄 Lisans
+## 📄 License
 
-MIT License - Detaylar için [LICENSE](LICENSE) dosyasına bakın.
+MIT License - See [LICENSE](LICENSE) file for details.
 
 ## 🔗 Links
 
@@ -120,65 +120,65 @@ MIT License - Detaylar için [LICENSE](LICENSE) dosyasına bakın.
 
 ---
 
-✨ **Powered by OpenAI GPT-4 Vision & Model Context Protocol**
+✨ **Powered by OpenAI GPT-4o & Model Context Protocol**
 
-## 🎯 Kullanım Senaryoları
+## 🎯 Use Cases
 
-### 📊 Website Tasarımı
+### 📊 Website Design
 ```bash
 @analyze_design url:https://example.com/homepage-mockup.jpg
 ```
 
-### 🎪 Sosyal Medya Post'u
+### 🎪 Social Media Post
 ```bash
 @analyze_design url:https://example.com/instagram-post.jpg
 ```
 
-### 🏢 Sunum Slide'ı
+### 🏢 Presentation Slide
 ```bash
 @analyze_design url:https://example.com/presentation-slide.jpg
 ```
 
-### 📱 Mobil App UI
+### 📱 Mobile App UI
 ```bash
 @analyze_design url:https://example.com/mobile-app-screen.jpg
 ```
 
-## 🚨 Hata Giderme
+## 🚨 Troubleshooting
 
-### Yaygın Sorunlar
+### Common Issues
 
-**1. OpenAI API Anahtarı Hatası**
+**1. OpenAI API Key Error**
 ```bash
 ❌ OPENAI_API_KEY not found
 ```
-**Çözüm:** MCP konfigürasyonunda API anahtarını doğru tanımladığınızdan emin olun.
+**Solution:** Make sure you have correctly defined the API key in your MCP configuration.
 
-**2. Görsel İndirme Hatası**
+**2. Image Download Error**
 ```bash
 ❌ Failed to download image: HTTP 404
 ```
-**Çözüm:** URL'nin geçerli ve erişilebilir olduğundan emin olun.
+**Solution:** Ensure the URL is valid and accessible.
 
-**3. MCP Bağlantı Hatası**
+**3. MCP Connection Error**
 ```bash
 ❌ 0 tools enabled
 ```
-**Çözüm:** 
-- Cursor'da `Cmd+Shift+P` → `MCP: Restart All Connections`
-- `mcp.json` konfigürasyonunu kontrol edin
+**Solution:** 
+- In Cursor: `Cmd+Shift+P` → `MCP: Restart All Connections`
+- Check your `mcp.json` configuration
 
-## 📁 Dosya Yapısı
+## 📁 File Structure
 
 ```
 graphic-design-mcp/
-├── mcp_graphic_design.py      # Ana MCP tool
-├── requirements.txt           # Python bağımlılıkları
-├── pyproject.toml            # Proje konfigürasyonu
-└── README.md                 # Bu dosya
+├── mcp_graphic_design.py      # Main MCP tool
+├── requirements.txt           # Python dependencies
+├── pyproject.toml            # Project configuration
+└── README.md                 # This file
 ```
 
-## 🔧 Yerel Test
+## 🔧 Local Testing
 
 ```bash
 git clone https://github.com/mcanince/graphic-design-mcp
@@ -187,37 +187,29 @@ pip install -r requirements.txt
 python mcp_graphic_design.py
 ```
 
-## 🤝 Katkıda Bulunma
+## 🤝 Contributing
 
-1. Fork edin
-2. Feature branch oluşturun (`git checkout -b feature/NewFeature`)
-3. Commit'leyin (`git commit -m 'Add NewFeature'`)
-4. Push edin (`git push origin feature/NewFeature`)
-5. Pull Request açın
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/NewFeature`)
+3. Commit your changes (`git commit -m 'Add NewFeature'`)
+4. Push to the branch (`git push origin feature/NewFeature`)
+5. Open a Pull Request
 
-## 📜 Lisans
 
-Bu proje MIT lisansı altında dağıtılmaktadır.
 
-## 🙏 Teşekkürler
-
-- OpenAI GPT-4o Vision API
-- FastMCP framework
-- Cursor IDE MCP desteği
-
-## 📧 İletişim
+## 📧 Contact
 
 - GitHub: [@mcanince](https://github.com/mcanince)
-- Email: mcanince@example.com
+- Email: mcanince@hotmail.com
 
 ---
 
-⭐ Bu projeyi beğendiyseniz star vermeyi unutmayın!
+⭐ If you like this project, don't forget to give it a star!
 
-## 📈 Versiyon Geçmişi
+## 📈 Version History
 
 ### v1.0.0 (2024-01-15)
-- 🎨 Tasarım analizi tool'u
-- 📊 5 kategori puanlama sistemi
-- 🔧 Temiz ve stabil kod yapısı
-- ✅ Çalışan FastMCP implementasyonu 
+- 🎨 Design analysis tool
+- 📊 5-category scoring system
+- 🔧 Clean and stable code structure
+- ✅ Working FastMCP implementation 
