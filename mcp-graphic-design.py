@@ -2,19 +2,12 @@
 import os, sys, json, base64, requests
 from openai import OpenAI
 
-def get_openai_key_from_cursor_config():
-    try:
-        cursor_config_path = os.path.expanduser("~/.cursor/mcp.json")
-        with open(cursor_config_path, 'r') as f:
-            config = json.load(f)
-        
-        env_vars = config["mcpServers"]["Grafik Tasarim MCP"]["env"]
-        api_key = env_vars.get("OPENAI_API_KEY")
-        if not api_key:
-            raise Exception("OpenAI API key Cursor MCP konfigürasyonunda bulunamadı")
-        return api_key
-    except Exception as e:
-        raise Exception(f"API key alınırken hata: {e}")
+def get_openai_api_key():
+    """Environment variable'dan OpenAI API anahtarını alır"""
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise Exception("OPENAI_API_KEY environment variable bulunamadı")
+    return api_key
 
 def initialize_server(request_id):
     """MCP sunucusunu başlatır"""
@@ -79,7 +72,7 @@ def fetch_image_base64(url):
 def analyze_image_with_openai(b64img):
     """OpenAI GPT-4o ile görsel analizi yapar"""
     try:
-        api_key = get_openai_key_from_cursor_config()
+        api_key = get_openai_api_key()
         client = OpenAI(api_key=api_key)
         
         prompt = """
