@@ -10,6 +10,7 @@ import base64
 import requests
 import io
 import subprocess
+import json
 from typing import Any, Dict, List, Tuple, Optional
 from openai import OpenAI
 from fastmcp import FastMCP
@@ -83,7 +84,7 @@ def commit_to_github(filename: str, file_path: str) -> Optional[str]:
     
     return None
 
-def create_analysis_report(analysis_type: str, scores: dict, analysis_text: str, image_url: str = None) -> Tuple[str, str, str]:
+def create_png_report(analysis_type: str, scores: dict, analysis_text: str, image_url: str = None) -> Tuple[str, str, str]:
     """
     Create a visual PNG report of the analysis results and upload it.
     
@@ -360,7 +361,7 @@ Then provide detailed feedback for each category and overall recommendations."""
         
         analysis = result.choices[0].message.content
         
-        # Extract scores for PNG generation
+        # Extract scores for future PNG generation
         scores = {}
         lines = analysis.split('\n')
         for line in lines:
@@ -376,8 +377,18 @@ Then provide detailed feedback for each category and overall recommendations."""
                     except:
                         continue
         
-        # Generate PNG report and upload
-        report_image, filename, github_url = create_analysis_report("Design", scores, analysis, url)
+        # Save analysis data for PNG generation
+        analysis_data = {
+            "type": "design",
+            "url": url,
+            "scores": scores,
+            "analysis": analysis,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        # Save to temporary file for generate_report tool
+        with open("last_analysis.json", "w") as f:
+            json.dump(analysis_data, f)
         
         # Format the response with emojis and better structure
         formatted_response = f"""
@@ -385,31 +396,6 @@ Then provide detailed feedback for each category and overall recommendations."""
 
 📋 **ANALYSIS RESULTS:**
 {analysis}
-
-🖼️ **VISUAL REPORT:**"""
-        
-        if report_image:
-            formatted_response += f"""
-✅ **PNG Report Successfully Generated!**
-
-📸 **VISUAL REPORT IMAGE:**
-![Analysis Report](data:image/png;base64,{report_image})
-
-"""
-            
-            if github_url:
-                formatted_response += f"""🔗 **Shareable Link:** {github_url}
-
-📱 **Share this link** to show the detailed visual analysis report!"""
-            else:
-                formatted_response += f"""💾 **Local File:** {filename}
-
-⚠️ Auto-upload to GitHub not available (not in a git repository or no push access)"""
-        else:
-            formatted_response += f"""
-❌ Could not generate PNG report: {filename}"""
-        
-        formatted_response += f"""
 
 🔗 **ANALYZED IMAGE:** {url}
 
@@ -426,7 +412,12 @@ Then provide detailed feedback for each category and overall recommendations."""
             else:
                 formatted_response += f"❌ **POOR** - Overall Score: {overall_score:.1f}/10"
         
-        formatted_response += "\n\n---\n*✨ Analysis powered by OpenAI GPT-4 Vision*"
+        formatted_response += """
+
+📸 **Want a visual PNG report?** Use the `generate_report` tool to create a beautiful infographic with charts and colors!
+
+---
+*✨ Analysis powered by OpenAI GPT-4 Vision*"""
         
         return formatted_response
         
@@ -543,8 +534,18 @@ If no text is visible, indicate that no copywriting was found to analyze."""
                     except:
                         continue
         
-        # Generate PNG report and upload
-        report_image, filename, github_url = create_analysis_report("Copywriting", scores, analysis, url)
+        # Save analysis data for PNG generation
+        analysis_data = {
+            "type": "copywriting",
+            "url": url,
+            "scores": scores,
+            "analysis": analysis,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        # Save to temporary file for generate_report tool
+        with open("last_analysis.json", "w") as f:
+            json.dump(analysis_data, f)
         
         # Format the response with emojis and better structure
         formatted_response = f"""
@@ -552,31 +553,6 @@ If no text is visible, indicate that no copywriting was found to analyze."""
 
 📝 **ANALYSIS RESULTS:**
 {analysis}
-
-🖼️ **VISUAL REPORT:**"""
-        
-        if report_image:
-            formatted_response += f"""
-✅ **PNG Report Successfully Generated!**
-
-📸 **VISUAL REPORT IMAGE:**
-![Copywriting Analysis Report](data:image/png;base64,{report_image})
-
-"""
-            
-            if github_url:
-                formatted_response += f"""🔗 **Shareable Link:** {github_url}
-
-📱 **Share this link** to show the detailed copywriting analysis report!"""
-            else:
-                formatted_response += f"""💾 **Local File:** {filename}
-
-⚠️ Auto-upload to GitHub not available (not in a git repository or no push access)"""
-        else:
-            formatted_response += f"""
-❌ Could not generate PNG report: {filename}"""
-        
-        formatted_response += f"""
 
 🔗 **ANALYZED IMAGE:** {url}
 
@@ -593,7 +569,12 @@ If no text is visible, indicate that no copywriting was found to analyze."""
             else:
                 formatted_response += f"❌ **POOR COPY** - Overall Score: {overall_score:.1f}/10"
         
-        formatted_response += "\n\n---\n*✨ Analysis powered by OpenAI GPT-4 Vision*"
+        formatted_response += """
+
+📸 **Want a visual PNG report?** Use the `generate_report` tool to create a beautiful infographic with charts and colors!
+
+---
+*✨ Analysis powered by OpenAI GPT-4 Vision*"""
         
         return formatted_response
         
@@ -601,6 +582,80 @@ If no text is visible, indicate that no copywriting was found to analyze."""
         return f"❌ **Network Error:** Could not download image from URL. {str(e)}"
     except Exception as e:
         return f"❌ **Error:** {str(e)}"
+
+@mcp.tool()
+def generate_report() -> str:
+    """
+    Generate a visual PNG report from the last analysis performed.
+    
+    This tool creates a beautiful PNG infographic with charts, colors, and visual elements
+    based on the most recent design or copywriting analysis. The PNG is displayed in chat
+    and optionally uploaded to GitHub if available.
+    
+    Returns:
+        Status of PNG generation with embedded image or error message
+    """
+    try:
+        # Load the last analysis data
+        if not os.path.exists("last_analysis.json"):
+            return "❌ **No Recent Analysis Found!**\n\nPlease run `analyze_design` or `analyze_copywriting` first, then use this tool to generate a visual report."
+        
+        with open("last_analysis.json", "r") as f:
+            analysis_data = json.load(f)
+        
+        analysis_type = analysis_data.get("type", "unknown")
+        scores = analysis_data.get("scores", {})
+        analysis_text = analysis_data.get("analysis", "")
+        image_url = analysis_data.get("url", "")
+        
+        if not scores:
+            return "❌ **No Scores Found!**\n\nThe analysis data doesn't contain valid scores. Please run a new analysis first."
+        
+        # Generate PNG report
+        report_image, filename, github_url = create_png_report(analysis_type, scores, analysis_text, image_url)
+        
+        if not report_image:
+            return f"❌ **PNG Generation Failed!**\n\nError: {filename}"
+        
+        # Format response with PNG embedded
+        formatted_response = f"""
+🎨 **PNG REPORT GENERATED SUCCESSFULLY!**
+
+📸 **VISUAL REPORT:**
+![{analysis_type.title()} Analysis Report](data:image/png;base64,{report_image})
+
+💾 **Local File:** {filename}
+"""
+        
+        if github_url:
+            formatted_response += f"""
+🔗 **GitHub Link:** {github_url}
+
+📱 **Share this link** to show the detailed analysis report!"""
+        else:
+            formatted_response += """
+⚠️ **GitHub Upload:** Not available (not in a git repository or no push access)"""
+        
+        # Calculate overall score for summary
+        if scores:
+            overall_score = sum(scores.values()) / len(scores)
+            formatted_response += f"""
+
+📊 **Report Summary:**
+- **Analysis Type:** {analysis_type.title()}
+- **Overall Score:** {overall_score:.1f}/10
+- **Categories:** {len(scores)} evaluated
+- **Generated:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}"""
+        
+        formatted_response += """
+
+---
+*✨ Visual report powered by Pillow & OpenAI GPT-4 Vision*"""
+        
+        return formatted_response
+        
+    except Exception as e:
+        return f"❌ **Error generating report:** {str(e)}"
 
 def main():
     """Main entry point for the MCP server"""
@@ -610,8 +665,8 @@ def main():
         print("📋 Available tools:")
         print("  • analyze_design - Analyze visual design elements")
         print("  • analyze_copywriting - Analyze text/copywriting content")
-        print("🖼️ PNG reports will be generated automatically!")
-        print("📸 Reports will be embedded directly in chat!")
+        print("  • generate_report - Create PNG infographic from last analysis")
+        print("📸 PNG reports embedded directly in chat!")
         print("🔗 Auto-upload to GitHub if available!")
         mcp.run()
     except KeyboardInterrupt:
