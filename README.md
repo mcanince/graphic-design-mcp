@@ -1,13 +1,13 @@
-# �� Graphic Design MCP Tool
+# 🎨 Graphic Design MCP Tool
 
-**OpenAI GPT-4o Vision kullanarak profesyonel grafik tasarım analizi**
+**OpenAI GPT-4o Vision ile profesyonel grafik tasarım analizi**
 
-Tasarım görsellerinizi 5 farklı kategoride analiz eden ve detaylı geri bildirim sunan MCP aracı.
+Tek tool ile tasarım görsellerinizi 5 kategoride analiz eder ve detaylı geri bildirim sunar.
 
 ## 🚀 Özellikler
 
-### 🎨 **Graphic Design Analyzer**
-- **5 kategori puanlaması** (Görsel uyum, netlik, kullanıcı dostu olma, etkileşim, yaratıcılık)
+### 🎨 **Design Analyzer**
+- **5 kategori puanlaması** (Visual Harmony, Clarity, User Friendliness, Interactivity, Creativity)
 - Her kategori için 10 üzerinden puanlama
 - Detaylı açıklamalar ve öneriler
 - OpenAI GPT-4o Vision powered analiz
@@ -72,23 +72,13 @@ Tasarım görsellerinizi 5 farklı kategoride analiz eden ve detaylı geri bildi
 @analyze_design url:https://example.com/mobile-app-screen.jpg
 ```
 
-## 📁 Dosya Yapısı
-
-```
-graphic-design-mcp/
-├── mcp_graphic_design.py      # Ana MCP tool
-├── requirements.txt           # Python bağımlılıkları
-├── pyproject.toml            # Proje konfigürasyonu
-└── README.md                 # Bu dosya
-```
-
 ## 🚨 Hata Giderme
 
 ### Yaygın Sorunlar
 
 **1. OpenAI API Anahtarı Hatası**
 ```bash
-❌ OPENAI_API_KEY environment variable not found
+❌ OPENAI_API_KEY not found
 ```
 **Çözüm:** MCP konfigürasyonunda API anahtarını doğru tanımladığınızdan emin olun.
 
@@ -106,9 +96,18 @@ graphic-design-mcp/
 - Cursor'da `Cmd+Shift+P` → `MCP: Restart All Connections`
 - `mcp.json` konfigürasyonunu kontrol edin
 
-## 🔧 Geliştirme
+## 📁 Dosya Yapısı
 
-### Yerel Test
+```
+graphic-design-mcp/
+├── mcp_graphic_design.py      # Ana MCP tool
+├── requirements.txt           # Python bağımlılıkları
+├── pyproject.toml            # Proje konfigürasyonu
+└── README.md                 # Bu dosya
+```
+
+## 🔧 Yerel Test
+
 ```bash
 git clone https://github.com/mcanince/graphic-design-mcp
 cd graphic-design-mcp
@@ -146,6 +145,7 @@ Bu proje MIT lisansı altında dağıtılmaktadır.
 ## 📈 Versiyon Geçmişi
 
 ### v1.0.0 (2024-01-15)
-- 🎨 Tasarım analizi tool'u eklendi
+- 🎨 Tasarım analizi tool'u
 - 📊 5 kategori puanlama sistemi
-- 🔧 Temiz ve stabil kod yapısı 
+- 🔧 Temiz ve stabil kod yapısı
+- ✅ Çalışan FastMCP implementasyonu 
