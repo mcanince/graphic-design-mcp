@@ -7,12 +7,7 @@ MCP (Model Context Protocol) tool for graphic design analysis. Analyzes designs 
 ### 🎯 Analysis Types
 - **🎨 Design Analysis** - Visual Harmony, Clarity, User Friendliness, Interactivity, Creativity
 - **✍️ Copywriting Analysis** - Clarity, Persuasiveness, Emotional Appeal, Call-to-Action, Brand Voice
-
-### 📊 Visual Reports
-- **🔗 GitHub Auto-Commit** - Reports automatically committed to GitHub
-- **📱 Shareable Links** - Easy sharing with GitHub raw URLs
-- **💾 Local Storage** - Reports saved to `reports/` folder
-
+  
 ### 🚀 Ease of Use
 - **📊 Detailed Analysis** - Specific feedback for each category
 
