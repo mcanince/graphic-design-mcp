@@ -178,82 +178,77 @@ def main():
     logger.info("Environment variables available:")
     logger.info(f"OPENAI_API_KEY: {'SET' if os.getenv('OPENAI_API_KEY') else 'NOT SET'}")
     
-    # Multiple requests için loop
-    while True:
-        try:
-            # stdin'den tek satır JSON oku
-            logger.info("Reading single line from stdin...")
-            input_data = sys.stdin.readline()
-            logger.info(f"Received input: {repr(input_data)}")
+    try:
+        # stdin'den tek satır JSON oku
+        logger.info("Reading single line from stdin...")
+        input_data = sys.stdin.readline()
+        logger.info(f"Received input: {repr(input_data)}")
+        
+        if not input_data.strip():
+            logger.warning("Empty input received")
+            return
             
-            if not input_data.strip():
-                logger.warning("Empty input received - breaking loop")
-                break
-                
-            payload = json.loads(input_data)
-            method = payload.get("method")
-            request_id = payload.get("id")
-            params = payload.get("params", {})
-            
-            logger.info(f"Method: {method}, Request ID: {request_id}, Params: {params}")
-            
-            if method == "initialize":
-                response = initialize_server(request_id)
-                print(json.dumps(response))
-                sys.stdout.flush()
-            elif method == "tools/list":
-                response = list_tools(request_id)
-                print(json.dumps(response))
-                sys.stdout.flush()
-            elif method == "tools/call":
-                tool_name = params.get("name")
-                arguments = params.get("arguments", {})
-                logger.info(f"Tool call: {tool_name}, Arguments: {arguments}")
-                response = call_tool(request_id, tool_name, arguments)
-                print(json.dumps(response))
-                sys.stdout.flush()
-            else:
-                logger.warning(f"Unknown method: {method}")
-                error_response = {
-                    "jsonrpc": "2.0",
-                    "id": request_id,
-                    "error": {
-                        "code": -32601,
-                        "message": f"Method not found: {method}"
-                    }
-                }
-                print(json.dumps(error_response))
-                sys.stdout.flush()
-                
-        except json.JSONDecodeError as e:
-            logger.error(f"JSON decode error: {e}")
+        payload = json.loads(input_data)
+        method = payload.get("method")
+        request_id = payload.get("id")
+        params = payload.get("params", {})
+        
+        logger.info(f"Method: {method}, Request ID: {request_id}, Params: {params}")
+        
+        if method == "initialize":
+            response = initialize_server(request_id)
+            print(json.dumps(response))
+            sys.stdout.flush()
+        elif method == "tools/list":
+            response = list_tools(request_id)
+            print(json.dumps(response))
+            sys.stdout.flush()
+        elif method == "tools/call":
+            tool_name = params.get("name")
+            arguments = params.get("arguments", {})
+            logger.info(f"Tool call: {tool_name}, Arguments: {arguments}")
+            response = call_tool(request_id, tool_name, arguments)
+            print(json.dumps(response))
+            sys.stdout.flush()
+        else:
+            logger.warning(f"Unknown method: {method}")
             error_response = {
                 "jsonrpc": "2.0",
-                "id": None,
+                "id": request_id,
                 "error": {
-                    "code": -32700,
-                    "message": f"Parse error: {str(e)}"
+                    "code": -32601,
+                    "message": f"Method not found: {method}"
                 }
             }
             print(json.dumps(error_response))
             sys.stdout.flush()
-        except EOFError:
-            logger.info("EOF reached - stopping server")
-            break
-        except Exception as e:
-            logger.error(f"General error: {e}")
-            error_response = {
-                "jsonrpc": "2.0",
-                "id": request_id if 'request_id' in locals() else None,
-                "error": {
-                    "code": -32000,
-                    "message": f"Internal error: {str(e)}"
-                }
+            
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON decode error: {e}")
+        error_response = {
+            "jsonrpc": "2.0",
+            "id": None,
+            "error": {
+                "code": -32700,
+                "message": f"Parse error: {str(e)}"
             }
-            print(json.dumps(error_response))
-            sys.stdout.flush()
+        }
+        print(json.dumps(error_response))
+        sys.stdout.flush()
+    except Exception as e:
+        logger.error(f"General error: {e}")
+        error_response = {
+            "jsonrpc": "2.0",
+            "id": request_id if 'request_id' in locals() else None,
+            "error": {
+                "code": -32000,
+                "message": f"Internal error: {str(e)}"
+            }
+        }
+        print(json.dumps(error_response))
+        sys.stdout.flush()
     
-    logger.info("MCP Server finished processing all requests")
+    logger.info("MCP Server finished processing request")
 
 if __name__ == "__main__":
     main()
