@@ -65,5 +65,9 @@ def analyze_design(url: str) -> str:
     except Exception as e:
         return f"❌ Error: {str(e)}"
 
-if __name__ == "__main__":
+def main():
+    """Entry point for the MCP server"""
     mcp.run()
+
+if __name__ == "__main__":
+    main()
