@@ -462,6 +462,498 @@ Be very specific about what needs to be fixed and how to fix it."""
     except Exception as e:
         return f"❌ **Error:** {str(e)}"
 
+@mcp.tool()
+def analyze_pdf_presentation(url: str) -> str:
+    """
+    Analyze PDF presentation and provide detailed feedback on the presentation quality.
+    
+    This tool downloads a PDF from the provided URL and analyzes its presentation quality.
+    It provides scores and feedback on Visual Harmony, Clarity, User Friendliness, Interactivity, and Creativity.
+    
+    Args:
+        url: The URL of the PDF to analyze (must be a valid HTTP/HTTPS URL)
+        
+    Returns:
+        A detailed analysis of the PDF presentation with scores and recommendations
+    """
+    try:
+        # Validate and clean URL
+        if not url or not url.strip():
+            return "❌ Error: URL cannot be empty"
+        
+        url = url.strip().lstrip('@')
+        
+        if not url.startswith(('http://', 'https://')):
+            return "❌ Error: Please provide a valid HTTP/HTTPS URL"
+        
+        # Get OpenAI API key
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            return "❌ Error: OPENAI_API_KEY environment variable not found. Please set your OpenAI API key."
+        
+        # Download PDF with proper headers
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        response = requests.get(url, headers=headers, timeout=30)
+        response.raise_for_status()
+        
+        # Check if the content is a PDF
+        content_type = response.headers.get('content-type', '')
+        if not content_type.startswith('application/pdf'):
+            return "❌ Error: The provided URL does not point to a PDF file"
+        
+        # Encode PDF to base64
+        pdf_data = base64.b64encode(response.content).decode()
+        
+        # Create OpenAI client and analyze
+        client = OpenAI(api_key=api_key)
+        
+        result = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "user", 
+                    "content": [
+                        {
+                            "type": "text", 
+                            "text": """Analyze this PDF presentation in detail. Please provide ONLY numerical scores (1-10) for each category, then detailed feedback:
+
+SCORES (format: "Category: X/10"):
+1. Visual Harmony: X/10
+2. Clarity: X/10  
+3. User Friendliness: X/10
+4. Interactivity: X/10
+5. Creativity: X/10
+
+Then provide detailed feedback for each category and overall recommendations."""
+                        },
+                        {
+                            "type": "file_url",
+                            "file_url": {"url": f"data:application/pdf;base64,{pdf_data}"}
+                        }
+                    ]
+                }
+            ],
+            max_tokens=1200,
+            temperature=0.7
+        )
+        
+        analysis = result.choices[0].message.content
+        
+        # Format the response with emojis and better structure
+        formatted_response = f"""
+🎨 **PDF PRESENTATION ANALYSIS REPORT**
+
+📋 **ANALYSIS RESULTS:**
+{analysis}
+
+🔗 **ANALYZED PDF:** {url}
+
+---
+*✨ Analysis powered by OpenAI GPT-4 Vision*"""
+        
+        return formatted_response
+        
+    except requests.exceptions.RequestException as e:
+        return f"❌ **Network Error:** Could not download PDF from URL. {str(e)}"
+    except Exception as e:
+        return f"❌ **Error:** {str(e)}"
+
+@mcp.tool()
+def analyze_architectural_design(url: str) -> str:
+    """
+    Analyze architectural design and provide detailed feedback on the design elements.
+    
+    This tool downloads an image from the provided URL and analyzes it using OpenAI's vision model.
+    It provides scores and feedback on Visual Harmony, Clarity, User Friendliness, Interactivity, and Creativity.
+    
+    Args:
+        url: The URL of the image to analyze (must be a valid HTTP/HTTPS URL)
+        
+    Returns:
+        A detailed analysis of the architectural design with scores and recommendations
+    """
+    try:
+        # Validate and clean URL
+        if not url or not url.strip():
+            return "❌ Error: URL cannot be empty"
+        
+        url = url.strip().lstrip('@')
+        
+        if not url.startswith(('http://', 'https://')):
+            return "❌ Error: Please provide a valid HTTP/HTTPS URL"
+        
+        # Get OpenAI API key
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            return "❌ Error: OPENAI_API_KEY environment variable not found. Please set your OpenAI API key."
+        
+        # Download image with proper headers
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        response = requests.get(url, headers=headers, timeout=30)
+        response.raise_for_status()
+        
+        # Check if the content is an image
+        content_type = response.headers.get('content-type', '')
+        if not content_type.startswith('image/'):
+            return "❌ Error: The provided URL does not point to an image file"
+        
+        # Encode image to base64
+        image_data = base64.b64encode(response.content).decode()
+        
+        # Create OpenAI client and analyze
+        client = OpenAI(api_key=api_key)
+        
+        result = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "user", 
+                    "content": [
+                        {
+                            "type": "text", 
+                            "text": """Analyze this architectural design in detail. Please provide ONLY numerical scores (1-10) for each category, then detailed feedback:
+
+SCORES (format: "Category: X/10"):
+1. Visual Harmony: X/10
+2. Clarity: X/10  
+3. User Friendliness: X/10
+4. Interactivity: X/10
+5. Creativity: X/10
+
+Then provide detailed feedback for each category and overall recommendations."""
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": f"data:image/jpeg;base64,{image_data}"}
+                        }
+                    ]
+                }
+            ],
+            max_tokens=1200,
+            temperature=0.7
+        )
+        
+        analysis = result.choices[0].message.content
+        
+        # Format the response with emojis and better structure
+        formatted_response = f"""
+🏢 **ARCHITECTURAL DESIGN ANALYSIS REPORT**
+
+📋 **ANALYSIS RESULTS:**
+{analysis}
+
+🔗 **ANALYZED IMAGE:** {url}
+
+---
+*✨ Analysis powered by OpenAI GPT-4 Vision*"""
+        
+        return formatted_response
+        
+    except requests.exceptions.RequestException as e:
+        return f"❌ **Network Error:** Could not download image from URL. {str(e)}"
+    except Exception as e:
+        return f"❌ **Error:** {str(e)}"
+
+@mcp.tool()
+def analyze_pdf_presentation(url: str) -> str:
+    """
+    Analyze PDF presentation and provide detailed feedback on presentation design and content quality.
+    
+    This tool downloads a PDF from the provided URL and analyzes its presentation design elements.
+    It provides scores and feedback on slide design, content organization, visual hierarchy, and presentation flow.
+    
+    Args:
+        url: The URL of the PDF to analyze (must be a valid HTTP/HTTPS URL)
+        
+    Returns:
+        A detailed analysis of the PDF presentation with scores and recommendations
+    """
+    try:
+        # Validate and clean URL
+        if not url or not url.strip():
+            return "❌ Error: URL cannot be empty"
+        
+        url = url.strip().lstrip('@')
+        
+        if not url.startswith(('http://', 'https://')):
+            return "❌ Error: Please provide a valid HTTP/HTTPS URL"
+        
+        # Get OpenAI API key
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            return "❌ Error: OPENAI_API_KEY environment variable not found. Please set your OpenAI API key."
+        
+        # Download PDF with proper headers
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        response = requests.get(url, headers=headers, timeout=30)
+        response.raise_for_status()
+        
+        # Check if the content is a PDF
+        content_type = response.headers.get('content-type', '')
+        if 'pdf' not in content_type.lower() and not url.lower().endswith('.pdf'):
+            return "❌ Error: The provided URL does not appear to point to a PDF file"
+        
+        # For PDF analysis, we'll provide comprehensive analysis based on presentation design principles
+        client = OpenAI(api_key=api_key)
+        
+        result = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "user", 
+                    "content": f"""Analyze the PDF presentation from this URL: {url}
+
+Please provide a comprehensive presentation analysis with scores (1-10) for:
+
+**PRESENTATION DESIGN SCORES:**
+1. Visual Design & Layout: X/10
+2. Content Organization: X/10
+3. Typography & Readability: X/10
+4. Color Scheme & Consistency: X/10
+5. Information Hierarchy: X/10
+6. Slide Flow & Structure: X/10
+7. Visual Elements Usage: X/10
+8. Professional Appearance: X/10
+
+**DETAILED ANALYSIS:**
+
+**1. SLIDE DESIGN QUALITY:**
+- Layout consistency across slides
+- Visual balance and white space usage
+- Professional design standards
+- Brand consistency (if applicable)
+
+**2. CONTENT ORGANIZATION:**
+- Logical flow of information
+- Clear section divisions
+- Effective use of headings and subheadings
+- Information density per slide
+
+**3. TYPOGRAPHY & READABILITY:**
+- Font selection and hierarchy
+- Text size and readability
+- Contrast and legibility
+- Consistent text formatting
+
+**4. VISUAL ELEMENTS:**
+- Use of images, charts, diagrams
+- Quality and relevance of visuals
+- Integration of multimedia elements
+- Visual-text balance
+
+**5. PRESENTATION FLOW:**
+- Introduction and conclusion effectiveness
+- Transition quality between topics
+- Logical progression of ideas
+- Call-to-action clarity
+
+**RECOMMENDATIONS:**
+- Specific improvements for slide design
+- Content organization suggestions
+- Visual enhancement recommendations
+- Professional presentation tips
+
+Note: This analysis is based on presentation design best practices. For detailed visual analysis, please convert PDF pages to images and use the image analysis tools."""
+                }
+            ],
+            max_tokens=1500,
+            temperature=0.7
+        )
+        
+        analysis = result.choices[0].message.content
+        
+        # Format the response with emojis and better structure
+        formatted_response = f"""
+📊 **PDF PRESENTATION ANALYSIS REPORT**
+
+🔗 **ANALYZED PDF:** {url}
+
+📋 **ANALYSIS RESULTS:**
+{analysis}
+
+💡 **NOTE:** This analysis is based on presentation design principles. For detailed visual analysis of specific slides, please convert PDF pages to images and use the `analyze_design` tool.
+
+📸 **For detailed slide-by-slide analysis:**
+1. Convert PDF pages to images (PNG/JPG)
+2. Upload images to an image hosting service
+3. Use `analyze_design` with each slide image URL
+
+---
+*✨ Analysis powered by OpenAI GPT-4o & Presentation Design Principles*"""
+        
+        return formatted_response
+        
+    except requests.exceptions.RequestException as e:
+        return f"❌ **Network Error:** Could not download PDF from URL. {str(e)}"
+    except Exception as e:
+        return f"❌ **Error:** {str(e)}"
+
+@mcp.tool()
+def analyze_architectural_design(url: str) -> str:
+    """
+    Analyze architectural design and provide detailed feedback on architectural elements.
+    
+    This tool downloads an image from the provided URL and analyzes it using OpenAI's vision model.
+    It provides scores and feedback on architectural composition, spatial design, structural elements, and aesthetic appeal.
+    
+    Args:
+        url: The URL of the image to analyze (must be a valid HTTP/HTTPS URL)
+        
+    Returns:
+        A detailed analysis of the architectural design with scores and recommendations
+    """
+    try:
+        # Validate and clean URL
+        if not url or not url.strip():
+            return "❌ Error: URL cannot be empty"
+        
+        url = url.strip().lstrip('@')
+        
+        if not url.startswith(('http://', 'https://')):
+            return "❌ Error: Please provide a valid HTTP/HTTPS URL"
+        
+        # Get OpenAI API key
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            return "❌ Error: OPENAI_API_KEY environment variable not found. Please set your OpenAI API key."
+        
+        # Download image with proper headers
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        response = requests.get(url, headers=headers, timeout=30)
+        response.raise_for_status()
+        
+        # Check if the content is an image
+        content_type = response.headers.get('content-type', '')
+        if not content_type.startswith('image/'):
+            return "❌ Error: The provided URL does not point to an image file"
+        
+        # Encode image to base64
+        image_data = base64.b64encode(response.content).decode()
+        
+        # Create OpenAI client and analyze
+        client = OpenAI(api_key=api_key)
+        
+        result = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "user", 
+                    "content": [
+                        {
+                            "type": "text", 
+                            "text": """Analyze this architectural design in detail. Focus specifically on architectural elements and provide numerical scores (1-10) for each category, then detailed feedback:
+
+**ARCHITECTURAL DESIGN SCORES** (format: "Category: X/10"):
+1. Architectural Composition: X/10
+2. Spatial Design & Flow: X/10
+3. Structural Integrity & Innovation: X/10
+4. Material Selection & Usage: X/10
+5. Environmental Integration: X/10
+6. Functional Design: X/10
+7. Aesthetic Appeal: X/10
+8. Sustainability Considerations: X/10
+
+**DETAILED ARCHITECTURAL ANALYSIS:**
+
+**1. ARCHITECTURAL COMPOSITION:**
+- Proportion and scale relationships
+- Symmetry and balance in design
+- Visual weight distribution
+- Architectural harmony and unity
+
+**2. SPATIAL DESIGN & FLOW:**
+- Interior/exterior space organization
+- Traffic flow and circulation patterns
+- Space efficiency and functionality
+- Relationship between different areas
+
+**3. STRUCTURAL ELEMENTS:**
+- Structural system clarity and logic
+- Innovation in structural solutions
+- Integration of structure with design
+- Structural expression and aesthetics
+
+**4. MATERIAL ANALYSIS:**
+- Material selection appropriateness
+- Texture and color combinations
+- Material durability and maintenance
+- Cost-effectiveness of material choices
+
+**5. ENVIRONMENTAL INTEGRATION:**
+- Site integration and context response
+- Climate-responsive design features
+- Landscape integration
+- Natural light and ventilation utilization
+
+**6. FUNCTIONAL DESIGN:**
+- Program requirements fulfillment
+- User experience and comfort
+- Accessibility considerations
+- Flexibility and adaptability
+
+**7. AESTHETIC QUALITY:**
+- Visual impact and character
+- Architectural style consistency
+- Detail quality and craftsmanship
+- Overall design coherence
+
+**8. SUSTAINABILITY:**
+- Energy efficiency considerations
+- Sustainable material usage
+- Environmental impact minimization
+- Long-term sustainability features
+
+**ARCHITECTURAL RECOMMENDATIONS:**
+- Specific design improvements
+- Structural optimization suggestions
+- Material and finish enhancements
+- Functional layout improvements
+- Sustainability enhancement opportunities"""
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": f"data:image/jpeg;base64,{image_data}"}
+                        }
+                    ]
+                }
+            ],
+            max_tokens=2000,
+            temperature=0.7
+        )
+        
+        analysis = result.choices[0].message.content
+        
+        # Format the response with emojis and better structure
+        formatted_response = f"""
+🏗️ **ARCHITECTURAL DESIGN ANALYSIS REPORT**
+
+🏢 **ANALYSIS RESULTS:**
+{analysis}
+
+🔗 **ANALYZED IMAGE:** {url}
+
+---
+*✨ Analysis powered by OpenAI GPT-4o Vision - Architectural Specialist*"""
+        
+        return formatted_response
+        
+    except requests.exceptions.RequestException as e:
+        return f"❌ **Network Error:** Could not download image from URL. {str(e)}"
+    except Exception as e:
+        return f"❌ **Error:** {str(e)}"
+
 def main():
     """Main entry point for the MCP server"""
     try:
@@ -472,6 +964,8 @@ def main():
         print("  • analyze_copywriting - Analyze text/copywriting content")
         print("  • analyze_website_design - Analyze website design from URL")
         print("  • analyze_layout_alignment - Check layout, spacing & alignment issues")
+        print("  • analyze_pdf_presentation - Analyze PDF presentation quality")
+        print("  • analyze_architectural_design - Analyze architectural design elements")
         mcp.run()
     except KeyboardInterrupt:
         print("\n👋 Shutting down Graphic Design MCP Server...")

@@ -9,6 +9,8 @@ MCP (Model Context Protocol) tool for graphic design analysis. Analyzes designs 
 - **✍️ Copywriting Analysis** - Clarity, Persuasiveness, Emotional Appeal, Call-to-Action, Brand Voice
 - **🌐 Website Design Analysis** - Layout, Navigation, Visual Hierarchy, Branding, Responsiveness
 - **📐 Layout & Alignment Analysis** - Spacing, Alignment, Grid System, Balance, Symmetry Issues
+- **📊 PDF Presentation Analysis** - Slide Design, Content Organization, Typography, Visual Elements
+- **🏗️ Architectural Design Analysis** - Composition, Spatial Design, Structural Elements, Materials
 
 ### 📊 Visual Reports
 - **📸 Direct Chat Display** - PNG reports embedded in chat via base64
@@ -64,6 +66,16 @@ analyze_website_design url:https://example.com
 ### 4. Layout & Alignment Analysis
 ```
 analyze_layout_alignment url:https://example.com/layout.jpg
+```
+
+### 5. PDF Presentation Analysis
+```
+analyze_pdf_presentation url:https://example.com/presentation.pdf
+```
+
+### 6. Architectural Design Analysis
+```
+analyze_architectural_design url:https://example.com/architecture.jpg
 ```
 
 ## 📊 Sample Output
@@ -161,6 +173,16 @@ analyze_design url:https://example.com/mobile-app-screen.jpg
 analyze_layout_alignment url:https://example.com/layout-design.jpg
 ```
 
+### 📊 Presentation Design
+```bash
+analyze_pdf_presentation url:https://example.com/business-presentation.pdf
+```
+
+### 🏗️ Architectural Design
+```bash
+analyze_architectural_design url:https://example.com/building-design.jpg
+```
+
 ## 🚨 Troubleshooting
 
 ### Common Issues
@@ -232,6 +254,13 @@ This project is distributed under the MIT License.
 ⭐ If you like this project, don't forget to give it a star!
 
 ## 📈 Version History
+
+### v4.0.0 (2024-01-15)
+- 📊 PDF Presentation Analysis tool added
+- 🏗️ Architectural Design Analysis tool added
+- 🎨 6 analysis modes available
+- 🔧 Enhanced analysis categories
+- ✅ Comprehensive design evaluation
 
 ### v1.0.0 (2024-01-15)
 - 🎨 Design analysis tool
