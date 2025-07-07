@@ -12,15 +12,7 @@ MCP (Model Context Protocol) tool for graphic design analysis. Analyzes designs 
 - **📊 PDF Presentation Analysis** - Slide Design, Content Organization, Typography, Visual Elements
 - **🏗️ Architectural Design Analysis** - Composition, Spatial Design, Structural Elements, Materials
 
-### 📊 Visual Reports
-- **📸 Direct Chat Display** - PNG reports embedded in chat via base64
-- **🔗 GitHub Auto-Commit** - Reports automatically committed to GitHub
-- **📱 Shareable Links** - Easy sharing with GitHub raw URLs
-- **💾 Local Storage** - Reports saved to `reports/` folder
-
 ### 🚀 Ease of Use
-- **❌ No API Key Required** - Only OpenAI API key needed
-- **⚡ Automatic Upload** - No manual upload process
 - **🎨 Professional Reports** - Colorful charts and scores
 - **📊 Detailed Analysis** - Specific feedback for each category
 
