@@ -9,6 +9,8 @@ import os
 import base64
 import requests
 import io
+import time
+import random
 from typing import Any, Dict, List, Tuple, Optional
 from openai import OpenAI
 from fastmcp import FastMCP
@@ -469,8 +471,9 @@ def analyze_pdf_presentation(url: str) -> str:
     """
     Analyze PDF presentation and provide detailed feedback on presentation design and content quality.
     
-    This tool downloads a PDF from the provided URL and analyzes its presentation design elements.
-    It provides scores and feedback on slide design, content organization, visual hierarchy, and presentation flow.
+    This tool downloads a PDF from the provided URL using advanced bot detection bypass techniques
+    and analyzes its presentation design elements. It provides scores and feedback on slide design, 
+    content organization, visual hierarchy, and presentation flow.
     
     Args:
         url: The URL of the PDF to analyze (must be a valid HTTP/HTTPS URL)
@@ -478,6 +481,100 @@ def analyze_pdf_presentation(url: str) -> str:
     Returns:
         A detailed analysis of the PDF presentation with scores and recommendations
     """
+    def _try_enhanced_request(url: str, strategy_name: str) -> tuple:
+        """Try different request strategies to bypass bot detection"""
+        
+        # Strategy 1: Enhanced Headers with Full Browser Simulation
+        if strategy_name == "enhanced_headers":
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+                'Accept-Language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'DNT': '1',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1',
+                'Sec-Fetch-Dest': 'document',
+                'Sec-Fetch-Mode': 'navigate',
+                'Sec-Fetch-Site': 'none',
+                'Sec-Fetch-User': '?1',
+                'Cache-Control': 'max-age=0',
+                'sec-ch-ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+                'sec-ch-ua-mobile': '?0',
+                'sec-ch-ua-platform': '"Windows"'
+            }
+            # Human-like delay
+            time.sleep(random.uniform(1.5, 3.0))
+            return requests.get(url, headers=headers, timeout=30), "Enhanced Headers"
+        
+        # Strategy 2: Session-based request with referrer
+        elif strategy_name == "session_based":
+            session = requests.Session()
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+                'Accept-Language': 'tr-TR,tr;q=0.8,en-US;q=0.5,en;q=0.3',
+                'Accept-Encoding': 'gzip, deflate',
+                'DNT': '1',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1'
+            }
+            session.headers.update(headers)
+            
+            # First visit main domain to establish session
+            try:
+                from urllib.parse import urlparse
+                parsed = urlparse(url)
+                main_domain = f"{parsed.scheme}://{parsed.netloc}/"
+                session.get(main_domain, timeout=15)
+                time.sleep(random.uniform(0.8, 1.5))
+            except:
+                pass
+            
+            return session.get(url, timeout=30), "Session-Based"
+        
+        # Strategy 3: HTTPS conversion for HTTP URLs
+        elif strategy_name == "https_conversion":
+            if url.startswith('http://'):
+                https_url = url.replace('http://', 'https://', 1)
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept': 'application/pdf,text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Accept-Language': 'en-US,en;q=0.5',
+                    'Accept-Encoding': 'gzip, deflate, br',
+                    'Connection': 'keep-alive',
+                    'Upgrade-Insecure-Requests': '1'
+                }
+                time.sleep(random.uniform(2.0, 4.0))
+                return requests.get(https_url, headers=headers, timeout=30), "HTTPS Conversion"
+        
+        # Strategy 4: Mobile User Agent
+        elif strategy_name == "mobile_agent":
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'tr-TR,tr;q=0.9',
+                'Accept-Encoding': 'gzip, deflate',
+                'Connection': 'keep-alive'
+            }
+            time.sleep(random.uniform(1.0, 2.0))
+            return requests.get(url, headers=headers, timeout=30), "Mobile Agent"
+        
+        # Strategy 5: Academic User Agent (for university sites)
+        elif strategy_name == "academic_agent":
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0',
+                'Accept': 'application/pdf,text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9,tr;q=0.8',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Connection': 'keep-alive',
+                'Referer': 'https://scholar.google.com/'
+            }
+            time.sleep(random.uniform(1.5, 2.5))
+            return requests.get(url, headers=headers, timeout=30), "Academic Agent"
+        
+        return None, "Unknown Strategy"
+    
     try:
         # Validate and clean URL
         if not url or not url.strip():
@@ -493,18 +590,62 @@ def analyze_pdf_presentation(url: str) -> str:
         if not api_key:
             return "❌ Error: OPENAI_API_KEY environment variable not found. Please set your OpenAI API key."
         
-        # Download PDF with proper headers
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
+        # Multiple strategies to bypass bot detection
+        strategies = [
+            "enhanced_headers",
+            "session_based", 
+            "https_conversion",
+            "academic_agent",
+            "mobile_agent"
+        ]
         
-        response = requests.get(url, headers=headers, timeout=30)
-        response.raise_for_status()
+        response = None
+        used_strategy = "None"
+        
+        # Try each strategy until one works
+        for strategy in strategies:
+            try:
+                print(f"🔄 Trying strategy: {strategy}")
+                result = _try_enhanced_request(url, strategy)
+                if result[0] is not None:
+                    test_response = result[0]
+                    test_response.raise_for_status()
+                    
+                    # Additional validation for successful response
+                    if test_response.status_code == 200 and len(test_response.content) > 1000:
+                        response = test_response
+                        used_strategy = result[1]
+                        print(f"✅ Success with strategy: {used_strategy}")
+                        break
+                        
+            except Exception as e:
+                print(f"❌ Strategy {strategy} failed: {str(e)}")
+                continue
+        
+        # If all strategies failed, try basic request as final fallback
+        if response is None:
+            try:
+                print("🔄 Trying basic fallback request...")
+                basic_headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                }
+                response = requests.get(url, headers=basic_headers, timeout=30)
+                response.raise_for_status()
+                used_strategy = "Basic Fallback"
+            except Exception as e:
+                return f"❌ **All Access Strategies Failed:** Could not download PDF from URL after trying multiple bot detection bypass methods.\n\n🔍 **Attempted Strategies:**\n• Enhanced Headers\n• Session-Based Request\n• HTTPS Conversion\n• Academic User Agent\n• Mobile User Agent\n• Basic Fallback\n\n**Final Error:** {str(e)}\n\n💡 **Suggestion:** The website may have advanced bot protection. Try:\n1. Accessing the URL manually in a browser\n2. Using a different PDF hosting service\n3. Converting the PDF to images and using image analysis tools"
         
         # Check if the content is a PDF
         content_type = response.headers.get('content-type', '')
         if 'pdf' not in content_type.lower() and not url.lower().endswith('.pdf'):
-            return "❌ Error: The provided URL does not appear to point to a PDF file"
+            # Try to analyze anyway if it might be a PDF
+            if len(response.content) > 1000 and response.content[:4] == b'%PDF':
+                pass  # It's a PDF despite wrong content-type
+            else:
+                return f"❌ Error: The provided URL does not appear to point to a PDF file\n\n📊 **Response Details:**\n• Content-Type: {content_type}\n• Content Size: {len(response.content)} bytes\n• Used Strategy: {used_strategy}"
+        
+        # Success message with strategy info
+        strategy_info = f"\n🛡️ **Bot Detection Bypass:** Successfully accessed using {used_strategy} strategy"
         
         # For PDF analysis, we'll provide comprehensive analysis based on presentation design principles
         client = OpenAI(api_key=api_key)
@@ -580,6 +721,7 @@ Note: This analysis is based on presentation design best practices. For detailed
 📊 **PDF PRESENTATION ANALYSIS REPORT**
 
 🔗 **ANALYZED PDF:** {url}
+{strategy_info}
 
 📋 **ANALYSIS RESULTS:**
 {analysis}
@@ -592,12 +734,12 @@ Note: This analysis is based on presentation design best practices. For detailed
 3. Use `analyze_design` with each slide image URL
 
 ---
-*✨ Analysis powered by OpenAI GPT-4o & Presentation Design Principles*"""
+*✨ Analysis powered by OpenAI GPT-4o & Advanced Bot Detection Bypass Technology*"""
         
         return formatted_response
         
     except requests.exceptions.RequestException as e:
-        return f"❌ **Network Error:** Could not download PDF from URL. {str(e)}"
+        return f"❌ **Network Error:** Could not download PDF from URL even with advanced bypass techniques. {str(e)}"
     except Exception as e:
         return f"❌ **Error:** {str(e)}"
 
