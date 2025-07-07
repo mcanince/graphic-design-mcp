@@ -1,6 +1,6 @@
-# Graphic Design MCP v3.0.0 🎨
+# Graphic Design MCP v4.0.0 🎨
 
-MCP (Model Context Protocol) tool for graphic design analysis. Analyzes designs in detail using OpenAI GPT-4 Vision and creates visual reports.
+MCP (Model Context Protocol) tool for graphic design analysis and **Google file integration**. Analyzes designs in detail using OpenAI GPT-4 Vision and creates visual reports. **NEW: Direct Google Slides, Drive, Docs, and Sheets analysis!**
 
 ## ✨ Features
 
@@ -11,6 +11,14 @@ MCP (Model Context Protocol) tool for graphic design analysis. Analyzes designs 
 - **📐 Layout & Alignment Analysis** - Spacing, Alignment, Grid System, Balance, Symmetry Issues
 - **📊 PDF Presentation Analysis** - Slide Design, Content Organization, Typography, Visual Elements
 - **🏗️ Architectural Design Analysis** - Composition, Spatial Design, Structural Elements, Materials
+- **🔗 Google File Analysis** - Direct analysis of Google Slides, Drive, Docs, and Sheets sharing links
+
+### 🚀 Google Integration (NEW!)
+- **📊 Google Slides** → Automatic PDF conversion and presentation analysis
+- **💾 Google Drive** → Direct file download and analysis
+- **📄 Google Docs** → PDF/DOCX export and document analysis
+- **📈 Google Sheets** → PDF/XLSX export and data visualization analysis
+- **🔄 Smart URL Conversion** - Automatically converts sharing links to analysis-ready formats
 
 ### 📊 Visual Reports
 - **📸 Direct Chat Display** - PNG reports embedded in chat via base64
@@ -23,6 +31,7 @@ MCP (Model Context Protocol) tool for graphic design analysis. Analyzes designs 
 - **⚡ Automatic Upload** - No manual upload process
 - **🎨 Professional Reports** - Colorful charts and scores
 - **📊 Detailed Analysis** - Specific feedback for each category
+- **🔗 One-Click Google Analysis** - Just paste Google sharing links!
 
 ## 📋 Installation
 
@@ -48,53 +57,117 @@ Add to `~/.cursor/mcp.json` file:
 
 ## 🛠️ Usage
 
-### 1. Design Analysis
+### 🔗 Google File Analysis (NEW!)
+
+#### Google Slides Analysis
+```
+analyze_google_file_link url:https://docs.google.com/presentation/d/FILE_ID/edit?usp=sharing analysis_type:presentation
+```
+
+#### Google Drive File Analysis  
+```
+analyze_google_file_link url:https://drive.google.com/file/d/FILE_ID/view?usp=sharing analysis_type:design
+```
+
+#### Google Docs Analysis
+```
+analyze_google_file_link url:https://docs.google.com/document/d/FILE_ID/edit analysis_type:copywriting
+```
+
+#### Google Sheets Analysis
+```
+analyze_google_file_link url:https://docs.google.com/spreadsheets/d/FILE_ID/edit analysis_type:layout
+```
+
+### 🎨 Traditional Analysis Tools
+
+#### 1. Design Analysis
 ```
 analyze_design url:https://example.com/design.jpg
 ```
 
-### 2. Copywriting Analysis
+#### 2. Copywriting Analysis
 ```
 analyze_copywriting url:https://example.com/ad.jpg
 ```
 
-### 3. Website Design Analysis
+#### 3. Website Design Analysis
 ```
 analyze_website_design url:https://example.com
 ```
 
-### 4. Layout & Alignment Analysis
+#### 4. Layout & Alignment Analysis
 ```
 analyze_layout_alignment url:https://example.com/layout.jpg
 ```
 
-### 5. PDF Presentation Analysis
+#### 5. PDF Presentation Analysis
 ```
 analyze_pdf_presentation url:https://example.com/presentation.pdf
 ```
 
-### 6. Architectural Design Analysis
+#### 6. Architectural Design Analysis
 ```
 analyze_architectural_design url:https://example.com/architecture.jpg
 ```
 
+## 🔄 Google URL Conversion Examples
+
+The tool automatically converts Google sharing URLs:
+
+### Google Slides
+```
+FROM: https://docs.google.com/presentation/d/1ABC.../edit?usp=sharing
+TO:   https://docs.google.com/presentation/d/1ABC.../export/pdf
+```
+
+### Google Drive
+```
+FROM: https://drive.google.com/file/d/1ABC.../view?usp=sharing
+TO:   https://drive.google.com/u/0/uc?id=1ABC...&export=download
+```
+
+### Google Docs
+```
+FROM: https://docs.google.com/document/d/1ABC.../edit
+TO:   https://docs.google.com/document/d/1ABC.../export?format=pdf
+```
+
+### Google Sheets
+```
+FROM: https://docs.google.com/spreadsheets/d/1ABC.../edit
+TO:   https://docs.google.com/spreadsheets/d/1ABC.../export?format=pdf
+```
+
 ## 📊 Sample Output
 
-🎨 **GRAPHIC DESIGN ANALYSIS REPORT**
+🔄 **GOOGLE FILE LINK CONVERSION**
+
+📁 **Original URL:** https://docs.google.com/presentation/d/1ABC.../edit?usp=sharing
+📋 **File Type:** Google Slides
+🔗 **File ID:** 1ABC...
+
+📎 **Available Analysis URLs:**
+• **PDF:** https://docs.google.com/presentation/d/1ABC.../export/pdf
+  _PDF version for presentation analysis_
+• **PPTX:** https://docs.google.com/presentation/d/1ABC.../export/pptx  
+  _PowerPoint version for download_
+
+🎯 **Using for Analysis:** https://docs.google.com/presentation/d/1ABC.../export/pdf
+
+📊 **PDF PRESENTATION ANALYSIS REPORT**
 
 📋 **ANALYSIS RESULTS:**
-- Visual Harmony: 8/10
-- Clarity: 9/10  
-- User Friendliness: 8/10
-- Interactivity: 7/10
-- Creativity: 7/10
+- Visual Design & Layout: 8/10
+- Content Organization: 9/10  
+- Typography & Readability: 8/10
+- Color Scheme & Consistency: 7/10
+- Information Hierarchy: 8/10
+- Slide Flow & Structure: 9/10
+- Visual Elements Usage: 7/10
+- Professional Appearance: 8/10
 
-📸 **VISUAL REPORT IMAGE:**
-![Analysis Report](data:image/png;base64,...)
-
-🔗 **Shareable Link:** https://raw.githubusercontent.com/username/repo/main/reports/...
-
-📊 **QUICK SUMMARY:** 👍 **GOOD** - Overall Score: 7.8/10
+📊 **QUICK SUMMARY:** 👍 **EXCELLENT** - Overall Score: 8.1/10
 
 ## 🔧 Technical Details
 
@@ -103,6 +176,13 @@ analyze_architectural_design url:https://example.com/architecture.jpg
 - `requests>=2.31.0`
 - `openai>=1.0.0`
 - `Pillow>=9.0.0`
+- `PyMuPDF>=1.23.0` (PDF processing)
+
+### Supported Google File Types
+- **Google Slides** (.pptx, .pdf)
+- **Google Drive Files** (direct download)
+- **Google Docs** (.docx, .pdf)
+- **Google Sheets** (.xlsx, .pdf)
 
 ### Reports
 - PNG format 1200x1600 pixels
@@ -117,6 +197,7 @@ analyze_architectural_design url:https://example.com/architecture.jpg
 
 ## 📋 Version History
 
+- **v4.0.0** - 🔗 Google File Integration + Smart URL Conversion
 - **v3.0.0** - Base64 embedding + GitHub auto-commit
 - **v2.0.1** - PNG generation bug fixes
 - **v2.0.0** - Visual PNG reports added
@@ -124,33 +205,26 @@ analyze_architectural_design url:https://example.com/architecture.jpg
 - **v1.1.0** - Design analysis tool
 - **v1.0.0** - Initial release
 
-## 🤝 Contributing
-
-1. Fork the project
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-
-MIT License - See [LICENSE](LICENSE) file for details.
-
-## 🔗 Links
-
-- [GitHub Repository](https://github.com/mcanince/graphic-design-mcp)
-- [MCP Documentation](https://modelcontextprotocol.io/)
-- [OpenAI API](https://openai.com/api/)
-
----
-
-✨ **Powered by OpenAI GPT-4o & Model Context Protocol**
-
 ## 🎯 Use Cases
 
-### 📊 Website Design
+### 📊 Google Slides Presentation
 ```bash
-analyze_website_design url:https://example.com
+analyze_google_file_link url:https://docs.google.com/presentation/d/1ABC.../edit analysis_type:presentation
+```
+
+### 💾 Google Drive PDF Analysis
+```bash
+analyze_google_file_link url:https://drive.google.com/file/d/1ABC.../view analysis_type:presentation
+```
+
+### 📄 Google Docs Copywriting Review
+```bash
+analyze_google_file_link url:https://docs.google.com/document/d/1ABC.../edit analysis_type:copywriting
+```
+
+### 📈 Google Sheets Layout Analysis
+```bash
+analyze_google_file_link url:https://docs.google.com/spreadsheets/d/1ABC.../edit analysis_type:layout
 ```
 
 ### 🎪 Social Media Post
@@ -158,24 +232,14 @@ analyze_website_design url:https://example.com
 analyze_design url:https://example.com/instagram-post.jpg
 ```
 
-### 🏢 Presentation Slide
+### 🏢 Website Analysis
 ```bash
-analyze_design url:https://example.com/presentation-slide.jpg
-```
-
-### 📱 Mobile App UI
-```bash
-analyze_design url:https://example.com/mobile-app-screen.jpg
+analyze_website_design url:https://example.com
 ```
 
 ### 📐 Layout Issues Check
 ```bash
 analyze_layout_alignment url:https://example.com/layout-design.jpg
-```
-
-### 📊 Presentation Design
-```bash
-analyze_pdf_presentation url:https://example.com/business-presentation.pdf
 ```
 
 ### 🏗️ Architectural Design
@@ -193,13 +257,19 @@ analyze_architectural_design url:https://example.com/building-design.jpg
 ```
 **Solution:** Make sure you have correctly defined the API key in your MCP configuration.
 
-**2. Image Download Error**
+**2. Google File Access Error**
+```bash
+❌ URL format not recognized as a Google file sharing link
+```
+**Solution:** Ensure the Google file is shared with "Anyone with the link can view" permission.
+
+**3. Image Download Error**
 ```bash
 ❌ Failed to download image: HTTP 404
 ```
 **Solution:** Ensure the URL is valid and accessible.
 
-**3. MCP Connection Error**
+**4. MCP Connection Error**
 ```bash
 ❌ 0 tools enabled
 ```
@@ -212,8 +282,10 @@ analyze_architectural_design url:https://example.com/building-design.jpg
 ```
 graphic-design-mcp/
 ├── mcp_graphic_design.py      # Main MCP tool
+├── google_link_converter.py   # Standalone Google link converter
 ├── requirements.txt           # Python dependencies
 ├── pyproject.toml            # Project configuration
+├── reports/                  # Generated analysis reports
 └── README.md                 # This file
 ```
 
@@ -223,6 +295,11 @@ graphic-design-mcp/
 git clone https://github.com/mcanince/graphic-design-mcp
 cd graphic-design-mcp
 pip install -r requirements.txt
+
+# Test Google link conversion
+python google_link_converter.py
+
+# Run MCP server
 python mcp_graphic_design.py
 ```
 
@@ -243,6 +320,8 @@ This project is distributed under the MIT License.
 - OpenAI GPT-4o Vision API
 - FastMCP framework
 - Cursor IDE MCP support
+- Google Workspace APIs
+- [Research sources for Google URL conversion methods](https://www.graytechnical.com/blog/how-to-easily-create-google-direct-download-links/)
 
 ## 📧 Contact
 
@@ -255,7 +334,18 @@ This project is distributed under the MIT License.
 
 ## 📈 Version History
 
-### v4.0.0 (2024-01-15)
+### v4.0.0 (2024-01-15) - Google Integration Release 🚀
+- 🔗 Google Slides analysis with automatic PDF conversion
+- 💾 Google Drive file direct download and analysis
+- 📄 Google Docs export and analysis (PDF/DOCX)
+- 📈 Google Sheets export and analysis (PDF/XLSX)
+- 🔄 Smart URL conversion system
+- 🎯 `analyze_google_file_link` tool added
+- 📋 Standalone `google_link_converter.py` script
+- 🛠️ Enhanced error handling and validation
+- 📚 Comprehensive documentation update
+
+### v3.0.0 (2024-01-15)
 - 📊 PDF Presentation Analysis tool added
 - 🏗️ Architectural Design Analysis tool added
 - 🎨 6 analysis modes available
@@ -266,4 +356,18 @@ This project is distributed under the MIT License.
 - 🎨 Design analysis tool
 - 📊 5-category scoring system
 - 🔧 Clean and stable code structure
-- ✅ Working FastMCP implementation 
+- ✅ Working FastMCP implementation
+
+---
+
+## 🎉 What's New in v4.0.0
+
+🔗 **Google File Integration** - The biggest update yet! Now you can directly analyze:
+- Google Slides presentations
+- Google Drive files  
+- Google Docs documents
+- Google Sheets spreadsheets
+
+Just paste the sharing link and let the tool handle the rest! No more manual downloads or conversions needed.
+
+✨ **Powered by OpenAI GPT-4o & Model Context Protocol** 

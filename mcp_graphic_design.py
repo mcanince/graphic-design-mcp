@@ -13,6 +13,9 @@ from typing import Any, Dict, List, Tuple, Optional
 from openai import OpenAI
 from fastmcp import FastMCP
 from datetime import datetime
+import re
+import tempfile
+import fitz  # PyMuPDF for PDF processing
 
 # Initialize FastMCP server
 mcp = FastMCP("Graphic Design MCP")
@@ -297,7 +300,15 @@ Please provide a comprehensive website design analysis with scores (1-10) for:
 - Visual design suggestions
 - Technical optimization tips
 
-Note: This analysis is based on general web design principles. For accurate assessment, please provide a screenshot of the website."""
+Note: This analysis is based on general web design principles. For more accurate results, please use a screenshot service to capture the website and analyze it using the `analyze_design` tool.
+
+📸 **For detailed visual analysis:**
+1. Take a screenshot of the website
+2. Upload it to an image hosting service
+3. Use `analyze_design` with the image URL
+
+---
+*✨ Analysis powered by OpenAI GPT-4o & Web Design Principles*"""
                 }
             ],
             max_tokens=1500,
@@ -660,6 +671,163 @@ Then provide detailed feedback for each category and overall recommendations."""
     except Exception as e:
         return f"❌ **Error:** {str(e)}"
 
+def convert_google_links_to_direct_urls(url: str) -> Dict[str, str]:
+    """
+    Convert Google Slides and Google Drive sharing links to direct download URLs
+    
+    Args:
+        url: Original Google sharing URL
+        
+    Returns:
+        Dict containing various format URLs for analysis
+    """
+    results = {"original_url": url, "analysis_urls": []}
+    
+    # Google Slides link patterns
+    slides_pattern = r'https://docs\.google\.com/presentation/d/([a-zA-Z0-9-_]+)'
+    slides_match = re.search(slides_pattern, url)
+    
+    if slides_match:
+        file_id = slides_match.group(1)
+        results["file_type"] = "google_slides"
+        results["file_id"] = file_id
+        
+        # Create different export URLs
+        results["analysis_urls"] = [
+            {
+                "format": "pdf",
+                "url": f"https://docs.google.com/presentation/d/{file_id}/export/pdf",
+                "description": "PDF version for presentation analysis"
+            },
+            {
+                "format": "pptx", 
+                "url": f"https://docs.google.com/presentation/d/{file_id}/export/pptx",
+                "description": "PowerPoint version for download"
+            }
+        ]
+        return results
+    
+    # Google Drive file link patterns
+    drive_pattern = r'https://drive\.google\.com/file/d/([a-zA-Z0-9-_]+)'
+    drive_match = re.search(drive_pattern, url)
+    
+    if drive_match:
+        file_id = drive_match.group(1)
+        results["file_type"] = "google_drive"
+        results["file_id"] = file_id
+        
+        # Create direct download URL
+        results["analysis_urls"] = [
+            {
+                "format": "direct_download",
+                "url": f"https://drive.google.com/u/0/uc?id={file_id}&export=download",
+                "description": "Direct download link for the file"
+            }
+        ]
+        return results
+    
+    # Google Docs link patterns
+    docs_pattern = r'https://docs\.google\.com/document/d/([a-zA-Z0-9-_]+)'
+    docs_match = re.search(docs_pattern, url)
+    
+    if docs_match:
+        file_id = docs_match.group(1)
+        results["file_type"] = "google_docs"
+        results["file_id"] = file_id
+        
+        # Create export URLs
+        results["analysis_urls"] = [
+            {
+                "format": "pdf",
+                "url": f"https://docs.google.com/document/d/{file_id}/export?format=pdf",
+                "description": "PDF version for document analysis"
+            },
+            {
+                "format": "docx",
+                "url": f"https://docs.google.com/document/d/{file_id}/export?format=docx", 
+                "description": "Word document version"
+            }
+        ]
+        return results
+    
+    # Google Sheets link patterns  
+    sheets_pattern = r'https://docs\.google\.com/spreadsheets/d/([a-zA-Z0-9-_]+)'
+    sheets_match = re.search(sheets_pattern, url)
+    
+    if sheets_match:
+        file_id = sheets_match.group(1)
+        results["file_type"] = "google_sheets"
+        results["file_id"] = file_id
+        
+        # Create export URLs
+        results["analysis_urls"] = [
+            {
+                "format": "pdf",
+                "url": f"https://docs.google.com/spreadsheets/d/{file_id}/export?format=pdf",
+                "description": "PDF version for analysis"
+            },
+            {
+                "format": "xlsx",
+                "url": f"https://docs.google.com/spreadsheets/d/{file_id}/export?format=xlsx",
+                "description": "Excel version for download"
+            }
+        ]
+        return results
+        
+    # If no pattern matches
+    results["file_type"] = "unknown"
+    results["error"] = "URL format not recognized as a Google file sharing link"
+    return results
+
+def analyze_google_file(url: str, analysis_type: str = "presentation") -> str:
+    """
+    Analyze Google files by converting them to appropriate formats first
+    
+    Args:
+        url: Original Google sharing URL
+        analysis_type: Type of analysis (presentation, design, copywriting, etc.)
+        
+    Returns:
+        Analysis result string
+    """
+    # Convert the URL to usable format
+    converted_links = convert_google_links_to_direct_urls(url)
+    
+    if "error" in converted_links:
+        return f"❌ Error: {converted_links['error']}"
+    
+    file_type = converted_links["file_type"]
+    analysis_urls = converted_links["analysis_urls"]
+    
+    # Find the best URL for analysis (prefer PDF)
+    analysis_url = None
+    for url_info in analysis_urls:
+        if url_info["format"] == "pdf":
+            analysis_url = url_info["url"]
+            break
+    
+    if not analysis_url and analysis_urls:
+        analysis_url = analysis_urls[0]["url"]
+    
+    if not analysis_url:
+        return "❌ Could not generate analysis URL"
+    
+    # Perform analysis based on file type
+    try:
+        if file_type == "google_slides" and analysis_type == "presentation":
+            return analyze_pdf_presentation(analysis_url)
+        elif analysis_type == "design":
+            return analyze_design(analysis_url)
+        elif analysis_type == "copywriting":  
+            return analyze_copywriting(analysis_url)
+        elif analysis_type == "layout":
+            return analyze_layout_alignment(analysis_url)
+        else:
+            return analyze_pdf_presentation(analysis_url)
+            
+    except Exception as e:
+                 return f"❌ Analysis failed: {str(e)}"
+
 @mcp.tool()
 def analyze_pdf_presentation(url: str) -> str:
     """
@@ -796,6 +964,84 @@ Note: This analysis is based on presentation design best practices. For detailed
         return f"❌ **Network Error:** Could not download PDF from URL. {str(e)}"
     except Exception as e:
         return f"❌ **Error:** {str(e)}"
+
+@mcp.tool()
+def analyze_google_file_link(url: str, analysis_type: str = "presentation") -> str:
+    """
+    Analyze Google Slides, Drive, Docs, or Sheets files by converting sharing links to direct analysis URLs.
+    
+    This tool converts Google sharing links to direct download/analysis formats and then performs the requested analysis.
+    Supports Google Slides, Google Drive files, Google Docs, and Google Sheets.
+    
+    Args:
+        url: Original Google sharing URL (e.g., Google Slides share link)
+        analysis_type: Type of analysis ("presentation", "design", "copywriting", "layout")
+        
+    Returns:
+        Analysis result with converted URLs and detailed feedback
+    """
+    try:
+        # Clean the URL
+        url = url.strip().lstrip('@')
+        
+        # Convert the URL to usable format
+        converted_links = convert_google_links_to_direct_urls(url)
+        
+        if "error" in converted_links:
+            return f"❌ Error: {converted_links['error']}"
+        
+        file_type = converted_links["file_type"]
+        analysis_urls = converted_links["analysis_urls"]
+        
+        # Find the best URL for analysis (prefer PDF)
+        analysis_url = None
+        for url_info in analysis_urls:
+            if url_info["format"] == "pdf":
+                analysis_url = url_info["url"]
+                break
+        
+        if not analysis_url and analysis_urls:
+            analysis_url = analysis_urls[0]["url"]
+        
+        if not analysis_url:
+            return "❌ Could not generate analysis URL"
+        
+        # Show conversion results first
+        conversion_info = f"""
+🔄 **GOOGLE FILE LINK CONVERSION**
+
+📁 **Original URL:** {url}
+📋 **File Type:** {file_type.replace('_', ' ').title()}
+🔗 **File ID:** {converted_links.get('file_id', 'Unknown')}
+
+📎 **Available Analysis URLs:**
+"""
+        for url_info in analysis_urls:
+            conversion_info += f"• **{url_info['format'].upper()}:** {url_info['url']}\n  _{url_info['description']}_\n"
+        
+        conversion_info += f"\n🎯 **Using for Analysis:** {analysis_url}\n\n"
+        
+        # Perform analysis based on file type and analysis type
+        if file_type == "google_slides" and analysis_type == "presentation":
+            analysis_result = analyze_pdf_presentation(analysis_url)
+        elif analysis_type == "design":
+            analysis_result = analyze_design(analysis_url)
+        elif analysis_type == "copywriting":
+            analysis_result = analyze_copywriting(analysis_url)
+        elif analysis_type == "layout":
+            analysis_result = analyze_layout_alignment(analysis_url)
+        else:
+            # Default to presentation analysis for Google Slides, design for others
+            if file_type == "google_slides":
+                analysis_result = analyze_pdf_presentation(analysis_url)
+            else:
+                analysis_result = analyze_design(analysis_url)
+        
+        # Combine conversion info with analysis
+        return conversion_info + analysis_result
+            
+    except Exception as e:
+        return f"❌ Analysis failed: {str(e)}"
 
 @mcp.tool()
 def analyze_architectural_design(url: str) -> str:
